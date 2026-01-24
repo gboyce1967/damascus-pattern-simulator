@@ -31,7 +31,7 @@ This application allows bladesmiths, metalworkers, and enthusiasts to visualize 
 
 ### Real-Time Transformations
 - **Twist**: Simulate twisting the billet (0-10 scale)
-- **Grind Depth**: Visualize pattern at different grinding depths (0-100%)
+- **Grind Depth**: Visualize pattern at different grinding depths (0-100%) (Work in progress)
 - **Mosaic Stacking**: Create tiled arrangements (1x1, 2x2, 3x3)
 
 ### Layer Thickness Control
@@ -116,46 +116,6 @@ python3 damascus_simulator.py
 2. Choose a preset pattern or create custom layers
 3. Adjust twist, grind depth, and layer thickness
 4. Export or print your pattern
-
-## Publishing to GitHub
-
-1. Create a new repository on GitHub: https://github.com/new
-2. Name it "damascus-pattern-simulator"
-3. Run these commands in your terminal:
-
-```bash
-cd /home/gary
-git init
-git add damascus_simulator.py DAMASCUS_README.md
-git add install-debian.sh install-redhat.sh uninstall-debian.sh uninstall-redhat.sh
-git commit -m "Initial commit: Damascus Pattern Simulator v1.0 with installers"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/damascus-pattern-simulator.git
-git push -u origin main
-```
-
-Replace `YOUR_USERNAME` with your actual GitHub username.
-
-### Optional: Add a .gitignore file
-
-```bash
-cat > .gitignore << 'EOF'
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.egg-info/
-dist/
-build/
-*.log
-.DS_Store
-EOF
-
-git add .gitignore
-git commit -m "Add .gitignore"
-git push
-```
 
 ## Code Structure
 
@@ -249,7 +209,7 @@ This will remove:
 ## Credits
 
 - **Inspired by**: Thor II by Christian Schnura
-- **Author**: Gary
+- **Author**: Gray Works Crafts
 - **Version**: 1.0
 - **Date**: January 2026
 
