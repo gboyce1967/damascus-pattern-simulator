@@ -2,6 +2,8 @@
 
 A comprehensive tool for simulating Damascus steel patterns with various transformations and effects on Linux.
 
+![Damascus Pattern Simulator](damascus-screenshot.png)
+
 ## Overview
 
 This application allows bladesmiths, metalworkers, and enthusiasts to visualize and experiment with Damascus steel patterns before forging. Create custom layer stacks, apply transformations like twisting and grinding, and export high-quality patterns for reference.
