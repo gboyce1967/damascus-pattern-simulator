@@ -75,10 +75,19 @@ class DamascusSimulator:
         if self.debug_mode.get():
             import datetime
             timestamp = datetime.datetime.now().strftime("%H:%M:%S")
-            log_entry = f"[{timestamp}] {message}"
-            print(log_entry)
+            log_entry = f"[{timestamp}] {message}\n"
+            print(log_entry.strip())
             self.debug_log.append(log_entry)
-            # Keep only last 100 entries
+            
+            # Save to file
+            debug_file = os.path.join(self.default_save_dir, 'debug.log')
+            try:
+                with open(debug_file, 'a') as f:
+                    f.write(log_entry)
+            except Exception as e:
+                print(f"[WARNING] Could not write to debug log: {e}")
+            
+            # Keep only last 100 entries in memory
             if len(self.debug_log) > 100:
                 self.debug_log = self.debug_log[-100:]
     
