@@ -633,17 +633,24 @@ class DamascusSimulator:
             if layer['color'] == 'pattern' and 'pattern_image' in layer:
                 pat_height, pat_width = layer['pattern_image'].shape[:2]
                 print(f"[DEBUG] Found pattern layer: {pat_height}x{pat_width}")
-                max_width = max(max_width, pat_width)
-                total_height += pat_height
+                
+                # Calculate scaled dimensions based on thickness
+                target_height = max(1, self.mm_to_pixels(layer['thickness']))
+                scale_factor = target_height / pat_height
+                scaled_width = int(pat_width * scale_factor)
+                
+                max_width = max(max_width, scaled_width)
+                total_height += target_height
+                print(f"[DEBUG] Pattern layer will be scaled to {target_height}x{scaled_width}")
                 print(f"[DEBUG] Updated max_width to {max_width}, total_height to {total_height}")
             else:
                 thickness = max(1, self.mm_to_pixels(layer['thickness']))
                 total_height += thickness
                 print(f"[DEBUG] Added {thickness}px for {layer['color']} layer, total_height now {total_height}")
         
-        # Create canvas large enough for all layers
-        canvas_width = max_width
-        canvas_height = max(400, total_height)
+        # Create canvas exactly sized for all layers (no minimum size)
+        canvas_width = max(max_width, 1)  # At least 1 pixel
+        canvas_height = max(total_height, 1)  # At least 1 pixel
         print(f"[DEBUG] Canvas size: {canvas_width}x{canvas_height}")
         
         img = Image.new('RGB', (canvas_width, canvas_height))
@@ -667,9 +674,25 @@ class DamascusSimulator:
                 if pattern_img is not None:
                     # Get the pattern dimensions
                     pat_height, pat_width = pattern_img.shape[:2]
-                    print(f"[DEBUG] Rendering pattern: {pat_height}x{pat_width}")
+                    print(f"[DEBUG] Original pattern size: {pat_height}x{pat_width}")
                     
-                    # For pattern layers, use the full pattern size
+                    # Scale pattern to match specified thickness in mm
+                    target_height = max(1, self.mm_to_pixels(layer['thickness']))
+                    print(f"[DEBUG] Target height for {layer['thickness']}mm: {target_height}px")
+                    
+                    # Resize pattern to target height while maintaining aspect ratio
+                    if pat_height != target_height:
+                        scale_factor = target_height / pat_height
+                        new_width = int(pat_width * scale_factor)
+                        print(f"[DEBUG] Scaling pattern to: {target_height}x{new_width}")
+                        
+                        # Resize using PIL
+                        pattern_pil = Image.fromarray(pattern_img)
+                        pattern_pil = pattern_pil.resize((new_width, target_height), Image.Resampling.LANCZOS)
+                        pattern_img = np.array(pattern_pil)
+                        pat_height, pat_width = pattern_img.shape[:2]
+                    
+                    # Render the scaled pattern
                     for py in range(pat_height):
                         if y + py >= canvas_height:
                             break
