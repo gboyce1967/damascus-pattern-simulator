@@ -14,11 +14,10 @@ This application allows bladesmiths, metalworkers, and enthusiasts to visualize 
 
 ### Pattern Generation
 - **Simple Layers**: Basic alternating white/black layer patterns
-- **Checkerboard**: Grid-based pattern for unique Damascus effects
 - **Random Pattern**: Pseudo-random layering for organic looks
 - **W Pattern**: Chevron/zigzag layers forming "W" shapes  
 - **C Pattern**: Curved/arced layers simulating bent billets
-- **Custom Layers**: Build your own complex layer stacks
+- **Custom Layers**: Build your own complex layer stacks with the layer builder
 
 ### Custom Layer Builder
 - Add individual layers with specific colors (white/black) and thicknesses
@@ -31,14 +30,30 @@ This application allows bladesmiths, metalworkers, and enthusiasts to visualize 
 
 ### Real-Time Transformations
 - **Twist**: Simulate twisting the billet (0-10 scale)
-- **Grind Depth**: Visualize pattern at different grinding depths (0-100%) (Work in progress)
-- **Mosaic Stacking**: Create tiled arrangements (1x1, 2x2, 3x3)
+- **Grind Depth**: Visualize pattern at different grinding depths (0-100%)
+  - Grinds perpendicular to layers (from the side, not the end)
+  - Simulates realistic knifemaking bevels
+- **Grind Angle**: Control bevel angle from 0-45 degrees for realistic knife bevels
+- **Pattern Rotation**: Rotate patterns in 90° increments (0°, 90°, 180°, 270°)
+- **Quick Mosaic**: Simple tiled arrangements (1×1, 2×2, 3×3)
+- **Custom Mosaic Builder**: Create complex mosaic patterns with:
+  - Straight line arrangements (horizontal or vertical rows)
+  - Checkerboard patterns
+  - Custom tile counts (up to 10×10)
 
 ### Layer Thickness Control
 - Adjust white and black layer thickness independently
 - Switch between metric (mm) and imperial (inches)
 - Range: 0.1mm to 5.0mm (0.004" to 0.197")
 - Real-time pattern updates
+- Spinbox inputs for precise values alongside sliders
+
+### Modern User Interface
+- **Dark theme**: Professional dark gray background with teal accents
+- **Split menu bar**: File operations on left, reset/about on right
+- **Two-column layouts**: Efficient use of space with side-by-side controls
+- **3D button effects**: Rounded buttons with shadow and depth
+- **Responsive controls**: Larger canvas (900×700) with better visibility
 
 ### Export & Print
 - **Export formats**: PNG, JPEG, PDF (300 DPI)
@@ -119,12 +134,12 @@ python3 damascus_simulator.py
 
 ## Code Structure
 
-The code is well-commented and organized into two main classes:
+The code is well-commented and organized into three main classes:
 
 ### `DamascusSimulator` Class
-- Main application window and UI setup
-- Pattern generation (simple, W, C, checkerboard, random, custom)
-- Transformation effects (twist, grind, mosaic)
+- Main application window and modern UI setup
+- Pattern generation (simple, W, C, random, custom)
+- Transformation effects (twist, grind with angle, mosaic, rotation)
 - File operations (load, export, print)
 - Layer color calculation for custom stacks
 
@@ -134,6 +149,12 @@ The code is well-commented and organized into two main classes:
 - Quick add buttons (5, 10, 20 alternating layers)
 - Save/load layer stacks to JSON files
 - Apply custom stacks to W and C patterns
+
+### `MosaicBuilderDialog` Class
+- Custom mosaic pattern builder dialog
+- Straight line and checkerboard mosaic types
+- Configurable tile counts (horizontal and vertical)
+- Handles rotated patterns correctly
 
 ### Key Methods
 
@@ -145,8 +166,8 @@ The code is well-commented and organized into two main classes:
 
 **Transformations:**
 - `apply_twist()` - Radial twist effect
-- `apply_grind()` - Depth simulation via vertical shift
-- `apply_mosaic()` - Tiled pattern arrangement
+- `apply_grind()` - Perpendicular grinding with bevel angle (0-45°)
+- `apply_mosaic()` - Tiled pattern arrangement (quick 1×1 to 3×3)
 
 **Utilities:**
 - `get_layer_color_at_position()` - Calculate color for custom layer stacks
@@ -209,8 +230,13 @@ This will remove:
 ## Credits
 
 - **Inspired by**: Thor II by Christian Schnura
+<<<<<<< HEAD
 - **Author**: Gray Works Crafts
 - **Version**: 1.0
+=======
+- **Author**: Gary
+- **Version**: 1.1
+>>>>>>> 57fc388 (Release v1.1: Modern UI redesign and enhanced features)
 - **Date**: January 2026
 
 ## License

@@ -16,18 +16,34 @@ class DamascusSimulator:
     def __init__(self, root):
         self.root = root
         self.root.title("Damascus Pattern Simulator")
-        self.root.geometry("1200x900")
+        self.root.geometry("1400x900")
+        
+        # Modern color scheme
+        self.colors = {
+            'bg': '#1e1e1e',
+            'fg': '#e0e0e0',
+            'canvas_bg': '#2d2d2d',
+            'accent': '#0d7377',
+            'accent_hover': '#14a098',
+            'panel_bg': '#252525',
+            'border': '#404040'
+        }
+        
+        # Configure modern style
+        self.setup_style()
         
         # Image variables
         self.original_image = None
         self.display_image = None
         self.pattern_array = None
-        self.canvas_width = 800
-        self.canvas_height = 600
+        self.canvas_width = 900
+        self.canvas_height = 700
         
         # Pattern parameters
         self.twist_amount = tk.DoubleVar(value=0.0)
         self.grind_depth = tk.DoubleVar(value=0.0)
+        self.grind_angle = tk.DoubleVar(value=0.0)  # Grind bevel angle in degrees
+        self.rotation_angle = tk.IntVar(value=0)  # Pattern rotation (0, 90, 180, 270)
         self.mosaic_size = tk.IntVar(value=1)
         self.white_layer_thickness = tk.DoubleVar(value=1.0)  # in mm
         self.black_layer_thickness = tk.DoubleVar(value=1.0)  # in mm
@@ -38,29 +54,97 @@ class DamascusSimulator:
         
         self.setup_ui()
         self.load_default_pattern()
+    
+    def setup_style(self):
+        """Configure modern ttk style"""
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        # Configure colors
+        style.configure('TFrame', background=self.colors['bg'])
+        style.configure('TLabel', background=self.colors['bg'], foreground=self.colors['fg'], font=('Segoe UI', 9))
+        style.configure('TLabelframe', background=self.colors['bg'], foreground=self.colors['fg'], 
+                       bordercolor=self.colors['border'], relief='flat')
+        style.configure('TLabelframe.Label', background=self.colors['bg'], foreground=self.colors['accent'],
+                       font=('Segoe UI', 9, 'bold'))
+        
+        # Modern buttons with rounded edges and shadow effect
+        style.configure('TButton', 
+                       background=self.colors['accent'], 
+                       foreground='white',
+                       borderwidth=1,
+                       relief='raised',
+                       bordercolor='#0a5a5d',
+                       lightcolor='#14a098',
+                       darkcolor='#084f52',
+                       focuscolor='none', 
+                       font=('Segoe UI', 9, 'bold'),
+                       padding=(10, 6))
+        style.map('TButton', 
+                 background=[('active', self.colors['accent_hover']), ('pressed', '#0a5a5d')],
+                 relief=[('pressed', 'sunken')])
+        
+        style.configure('TRadiobutton', background=self.colors['bg'], foreground=self.colors['fg'],
+                       font=('Segoe UI', 9))
+        style.configure('TCheckbutton', background=self.colors['bg'], foreground=self.colors['fg'])
+        style.configure('TScale', background=self.colors['bg'])
+        style.configure('TSpinbox', background=self.colors['panel_bg'], foreground=self.colors['fg'],
+                       fieldbackground=self.colors['panel_bg'], borderwidth=1)
+        
+        self.root.configure(bg=self.colors['bg'])
         
     def setup_ui(self):
         """Create the user interface"""
         # Main container
         main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Top menu bar with split layout
+        menubar = ttk.Frame(main_frame)
+        menubar.pack(fill=tk.X, padx=15, pady=(10, 0))
+        
+        # Left side menu items
+        left_menu = ttk.Frame(menubar)
+        left_menu.pack(side=tk.LEFT, fill=tk.X)
+        
+        ttk.Button(left_menu, text="Load Pattern", command=self.load_pattern).pack(side=tk.LEFT, padx=2)
+        ttk.Button(left_menu, text="Load Default", command=self.load_default_pattern).pack(side=tk.LEFT, padx=2)
+        ttk.Button(left_menu, text="Export", command=self.save_pattern).pack(side=tk.LEFT, padx=2)
+        ttk.Button(left_menu, text="Print", command=self.print_pattern).pack(side=tk.LEFT, padx=2)
+        
+        # Right side menu items
+        right_menu = ttk.Frame(menubar)
+        right_menu.pack(side=tk.RIGHT, fill=tk.X)
+        
+        ttk.Button(right_menu, text="Reset Options", command=self.reset_options_only).pack(side=tk.LEFT, padx=2)
+        ttk.Button(right_menu, text="Reset All", command=self.reset_all).pack(side=tk.LEFT, padx=2)
+        ttk.Button(right_menu, text="About", command=self.show_about).pack(side=tk.LEFT, padx=2)
+        
+        # Content area
+        content_frame = ttk.Frame(main_frame)
+        content_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
         
         # Left panel - Canvas
-        left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        left_frame = ttk.Frame(content_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
         
-        # Canvas for image display
-        self.canvas = tk.Canvas(left_frame, width=self.canvas_width, height=self.canvas_height, 
-                               bg='gray20', highlightthickness=1, highlightbackground='gray50')
+        # Canvas for image display with modern styling
+        canvas_container = ttk.Frame(left_frame)
+        canvas_container.pack(fill=tk.BOTH, expand=True)
+        
+        self.canvas = tk.Canvas(canvas_container, width=self.canvas_width, height=self.canvas_height, 
+                               bg=self.colors['canvas_bg'], highlightthickness=2, 
+                               highlightbackground=self.colors['border'])
         self.canvas.pack(padx=5, pady=5)
         
         # Right panel - Controls with scrollbar
-        right_frame = ttk.Frame(main_frame, width=300)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, padx=5)
+        right_frame = ttk.Frame(content_frame, width=420)
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
         right_frame.pack_propagate(False)
         
         # Create canvas and scrollbar for right panel
-        canvas = tk.Canvas(right_frame, width=285)
+        canvas = tk.Canvas(right_frame, width=405, bg=self.colors['bg'], 
+                          highlightthickness=0, borderwidth=0)
         scrollbar = ttk.Scrollbar(right_frame, orient="vertical", command=canvas.yview)
         scrollable_frame = ttk.Frame(canvas)
         
@@ -83,54 +167,57 @@ class DamascusSimulator:
         # Use scrollable_frame instead of right_frame for all controls
         right_frame = scrollable_frame
         
-        # Title
-        title = ttk.Label(right_frame, text="Damascus Simulator", 
-                         font=('Arial', 14, 'bold'))
-        title.pack(pady=10)
-        
-        # File operations
-        file_frame = ttk.LabelFrame(right_frame, text="File Operations", padding=10)
-        file_frame.pack(fill=tk.X, pady=5)
-        
-        ttk.Button(file_frame, text="Load Pattern", 
-                  command=self.load_pattern).pack(fill=tk.X, pady=2)
-        ttk.Button(file_frame, text="Load Default", 
-                  command=self.load_default_pattern).pack(fill=tk.X, pady=2)
-        ttk.Button(file_frame, text="Export Pattern", 
-                  command=self.save_pattern).pack(fill=tk.X, pady=2)
-        ttk.Button(file_frame, text="Print Pattern", 
-                  command=self.print_pattern).pack(fill=tk.X, pady=2)
-        
-        # Pattern controls
-        controls_frame = ttk.LabelFrame(right_frame, text="Pattern Controls", padding=10)
-        controls_frame.pack(fill=tk.X, pady=5)
+        # Transformations section
+        transform_frame = ttk.LabelFrame(right_frame, text="Transformations", padding=15)
+        transform_frame.pack(fill=tk.X, pady=(0, 8))
         
         # Twist amount
-        ttk.Label(controls_frame, text="Twist Amount:").pack(anchor=tk.W)
-        twist_scale = ttk.Scale(controls_frame, from_=0, to=10, 
+        ttk.Label(transform_frame, text="Twist Amount:").pack(anchor=tk.W, pady=(0,3))
+        twist_frame = ttk.Frame(transform_frame)
+        twist_frame.pack(fill=tk.X, pady=(0, 12))
+        twist_scale = ttk.Scale(twist_frame, from_=0, to=10, 
                                variable=self.twist_amount, 
                                command=self.update_pattern)
-        twist_scale.pack(fill=tk.X, pady=5)
-        ttk.Label(controls_frame, textvariable=self.twist_amount, 
-                 font=('Arial', 8)).pack(anchor=tk.E)
+        twist_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        twist_spinbox = ttk.Spinbox(twist_frame, from_=0, to=10, increment=0.1,
+                                   textvariable=self.twist_amount, width=8,
+                                   command=self.update_pattern)
+        twist_spinbox.pack(side=tk.LEFT, padx=(8,0))
         
         # Grind depth
-        ttk.Label(controls_frame, text="Grind Depth:").pack(anchor=tk.W, pady=(10,0))
-        grind_scale = ttk.Scale(controls_frame, from_=0, to=100, 
+        ttk.Label(transform_frame, text="Grind Depth (%):").pack(anchor=tk.W, pady=(0,3))
+        grind_frame = ttk.Frame(transform_frame)
+        grind_frame.pack(fill=tk.X, pady=(0, 12))
+        grind_scale = ttk.Scale(grind_frame, from_=0, to=100, 
                                variable=self.grind_depth, 
                                command=self.update_pattern)
-        grind_scale.pack(fill=tk.X, pady=5)
-        ttk.Label(controls_frame, textvariable=self.grind_depth, 
-                 font=('Arial', 8)).pack(anchor=tk.E)
+        grind_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        grind_spinbox = ttk.Spinbox(grind_frame, from_=0, to=100, increment=1,
+                                   textvariable=self.grind_depth, width=8,
+                                   command=self.update_pattern)
+        grind_spinbox.pack(side=tk.LEFT, padx=(8,0))
+        
+        # Grind angle
+        ttk.Label(transform_frame, text="Grind Angle (degrees):").pack(anchor=tk.W, pady=(0,3))
+        angle_frame = ttk.Frame(transform_frame)
+        angle_frame.pack(fill=tk.X, pady=(0, 0))
+        angle_scale = ttk.Scale(angle_frame, from_=0, to=45, 
+                               variable=self.grind_angle, 
+                               command=self.update_pattern)
+        angle_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        angle_spinbox = ttk.Spinbox(angle_frame, from_=0, to=45, increment=1,
+                                   textvariable=self.grind_angle, width=8,
+                                   command=self.update_pattern)
+        angle_spinbox.pack(side=tk.LEFT, padx=(8,0))
         
         # Layer thickness controls
-        layer_frame = ttk.LabelFrame(right_frame, text="Layer Thickness", padding=10)
-        layer_frame.pack(fill=tk.X, pady=5)
+        layer_frame = ttk.LabelFrame(right_frame, text="Layer Thickness", padding=15)
+        layer_frame.pack(fill=tk.X, pady=(0, 8))
         
         # Unit selection
         unit_frame = ttk.Frame(layer_frame)
-        unit_frame.pack(fill=tk.X, pady=(0,10))
-        ttk.Label(unit_frame, text="Units:").pack(side=tk.LEFT)
+        unit_frame.pack(fill=tk.X, pady=(0,12))
+        ttk.Label(unit_frame, text="Units:").pack(side=tk.LEFT, padx=(0,10))
         ttk.Radiobutton(unit_frame, text="mm", variable=self.unit_system, 
                        value="metric", command=self.update_unit_display).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(unit_frame, text="inches", variable=self.unit_system, 
@@ -138,78 +225,91 @@ class DamascusSimulator:
         
         # White layer thickness
         self.white_label = ttk.Label(layer_frame, text="White Layer (mm):")
-        self.white_label.pack(anchor=tk.W)
-        white_scale = ttk.Scale(layer_frame, from_=0.1, to=5.0, 
+        self.white_label.pack(anchor=tk.W, pady=(0,3))
+        white_frame = ttk.Frame(layer_frame)
+        white_frame.pack(fill=tk.X, pady=(0, 12))
+        white_scale = ttk.Scale(white_frame, from_=0.1, to=5.0, 
                                variable=self.white_layer_thickness, 
                                command=self.on_layer_change)
-        white_scale.pack(fill=tk.X, pady=5)
-        self.white_value_label = ttk.Label(layer_frame, text="1.0 mm", font=('Arial', 8))
-        self.white_value_label.pack(anchor=tk.E)
+        white_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        white_spinbox = ttk.Spinbox(white_frame, from_=0.1, to=5.0, increment=0.1,
+                                   textvariable=self.white_layer_thickness, width=8,
+                                   command=self.on_layer_change)
+        white_spinbox.pack(side=tk.LEFT, padx=(8,0))
         
         # Black layer thickness
         self.black_label = ttk.Label(layer_frame, text="Black Layer (mm):")
-        self.black_label.pack(anchor=tk.W, pady=(10,0))
-        black_scale = ttk.Scale(layer_frame, from_=0.1, to=5.0, 
+        self.black_label.pack(anchor=tk.W, pady=(0,3))
+        black_frame = ttk.Frame(layer_frame)
+        black_frame.pack(fill=tk.X, pady=(0, 0))
+        black_scale = ttk.Scale(black_frame, from_=0.1, to=5.0, 
                                variable=self.black_layer_thickness, 
                                command=self.on_layer_change)
-        black_scale.pack(fill=tk.X, pady=5)
-        self.black_value_label = ttk.Label(layer_frame, text="1.0 mm", font=('Arial', 8))
-        self.black_value_label.pack(anchor=tk.E)
+        black_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        black_spinbox = ttk.Spinbox(black_frame, from_=0.1, to=5.0, increment=0.1,
+                                   textvariable=self.black_layer_thickness, width=8,
+                                   command=self.on_layer_change)
+        black_spinbox.pack(side=tk.LEFT, padx=(8,0))
         
-        # Mosaic controls
-        mosaic_frame = ttk.LabelFrame(right_frame, text="Mosaic Stacking", padding=10)
-        mosaic_frame.pack(fill=tk.X, pady=5)
+        # Two column layout for rotation and mosaic
+        layout_frame = ttk.Frame(right_frame)
+        layout_frame.pack(fill=tk.X, pady=(0, 8))
         
-        ttk.Label(mosaic_frame, text="Mosaic Size:").pack(anchor=tk.W)
-        mosaic_options = ttk.Frame(mosaic_frame)
-        mosaic_options.pack(fill=tk.X, pady=5)
+        # Left column - Rotation
+        rotation_frame = ttk.LabelFrame(layout_frame, text="Rotation", padding=15)
+        rotation_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 4))
+        
+        for angle in [0, 90, 180, 270]:
+            ttk.Radiobutton(rotation_frame, text=f"{angle}°", 
+                          variable=self.rotation_angle, value=angle,
+                          command=self.update_pattern).pack(anchor=tk.W, pady=3)
+        
+        # Right column - Quick Mosaic
+        mosaic_frame = ttk.LabelFrame(layout_frame, text="Quick Mosaic", padding=15)
+        mosaic_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(4, 0))
         
         for i, size in enumerate([1, 2, 3]):
-            ttk.Radiobutton(mosaic_options, text=f"{size}x{size}", 
+            ttk.Radiobutton(mosaic_frame, text=f"{size}×{size}", 
                           variable=self.mosaic_size, value=size,
-                          command=self.update_pattern).pack(side=tk.LEFT, padx=5)
+                          command=self.update_pattern).pack(anchor=tk.W, pady=3)
+        
+        # Custom builders section
+        builders_frame = ttk.LabelFrame(right_frame, text="Pattern Builders", padding=15)
+        builders_frame.pack(fill=tk.X, pady=(0, 8))
+        
+        builder_buttons = ttk.Frame(builders_frame)
+        builder_buttons.pack(fill=tk.X)
+        
+        ttk.Button(builder_buttons, text="Custom Layers",
+                  command=self.open_custom_layer_builder).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 4))
+        ttk.Button(builder_buttons, text="Custom Mosaic",
+                  command=self.open_mosaic_builder).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(4, 0))
         
         # Preset patterns
-        preset_frame = ttk.LabelFrame(right_frame, text="Preset Patterns", padding=10)
-        preset_frame.pack(fill=tk.X, pady=5)
+        preset_frame = ttk.LabelFrame(right_frame, text="Preset Patterns", padding=15)
+        preset_frame.pack(fill=tk.X, pady=(0, 8))
+        
+        # Two-column grid for presets
+        preset_grid = ttk.Frame(preset_frame)
+        preset_grid.pack(fill=tk.X)
         
         presets = [
             ("Simple Layers", self.create_simple_layers),
-            ("Checkerboard", self.create_checkerboard),
             ("Random Pattern", self.create_random_pattern),
             ("W Pattern", lambda: self.create_w_pattern(use_custom_stack=False)),
             ("C Pattern", lambda: self.create_c_pattern(use_custom_stack=False)),
-            ("Custom Layers...", self.open_custom_layer_builder),
         ]
         
-        for name, func in presets:
-            ttk.Button(preset_frame, text=name, 
-                      command=func).pack(fill=tk.X, pady=2)
+        for i, (name, func) in enumerate(presets):
+            row = i // 2
+            col = i % 2
+            padx = (0, 4) if col == 0 else (4, 0)
+            ttk.Button(preset_grid, text=name, command=func).grid(
+                row=row, column=col, sticky="ew", pady=2, padx=padx)
         
-        # Reset button
-        ttk.Button(right_frame, text="Reset All", 
-                  command=self.reset_controls).pack(fill=tk.X, pady=10)
-        
-        # Info
-        info_frame = ttk.LabelFrame(right_frame, text="Info", padding=10)
-        info_frame.pack(fill=tk.BOTH, expand=True, pady=5)
-        
-        info_text = """Damascus Pattern Simulator
-
-Load a pattern image representing 
-the end grain of a Damascus billet.
-
-Twist: Simulates twisting the billet
-Grind: Shows pattern at depth
-Layers: Adjust thickness of layers
-Mosaic: Creates tiled arrangements
-W/C: Special patterns
-
-Created for Linux
-Inspired by Thor II"""
-        
-        ttk.Label(info_frame, text=info_text, justify=tk.LEFT, 
-                 font=('Arial', 8)).pack()
+        # Make columns equal width
+        preset_grid.columnconfigure(0, weight=1)
+        preset_grid.columnconfigure(1, weight=1)
     
     def load_pattern(self):
         """Load a pattern image from file"""
@@ -250,15 +350,14 @@ Inspired by Thor II"""
         if self.unit_system.get() == "metric":
             self.white_label.config(text="White Layer (mm):")
             self.black_label.config(text="Black Layer (mm):")
-            self.white_value_label.config(text=f"{self.white_layer_thickness.get():.2f} mm")
-            self.black_value_label.config(text=f"{self.black_layer_thickness.get():.2f} mm")
         else:
             self.white_label.config(text="White Layer (in):")
             self.black_label.config(text="Black Layer (in):")
+            # Convert the internal mm values for display
             white_inches = self.mm_to_inches(self.white_layer_thickness.get())
             black_inches = self.mm_to_inches(self.black_layer_thickness.get())
-            self.white_value_label.config(text=f"{white_inches:.3f} in")
-            self.black_value_label.config(text=f"{black_inches:.3f} in")
+            self.white_layer_thickness.set(white_inches)
+            self.black_layer_thickness.set(black_inches)
     
     def on_layer_change(self, *args):
         """Handle layer thickness slider changes"""
@@ -453,6 +552,10 @@ Inspired by Thor II"""
         """Open dialog to build custom layer stack"""
         CustomLayerDialog(self.root, self)
     
+    def open_mosaic_builder(self):
+        """Open dialog to build custom mosaic patterns"""
+        MosaicBuilderDialog(self.root, self)
+    
     def create_custom_layers(self, layer_data):
         """Create pattern from custom layer data"""
         size = 400
@@ -483,15 +586,60 @@ Inspired by Thor II"""
         self.current_pattern_type = 'custom'
         self.update_pattern()
     
-    def reset_controls(self):
-        """Reset all control values"""
+    def reset_options_only(self):
+        """Reset slider values without changing the base pattern"""
+        print("[DEBUG] Reset Options clicked")
         self.twist_amount.set(0.0)
         self.grind_depth.set(0.0)
+        self.grind_angle.set(0.0)
+        self.rotation_angle.set(0)
         self.mosaic_size.set(1)
         self.white_layer_thickness.set(1.0)
         self.black_layer_thickness.set(1.0)
         self.update_unit_display()
+        # Update pattern to show effect of reset sliders
         self.update_pattern()
+        print("[DEBUG] Reset Options complete")
+    
+    def reset_all(self):
+        """Reset all controls AND reload default pattern"""
+        try:
+            print("[DEBUG] Reset All clicked")
+            # Reset sliders first
+            self.twist_amount.set(0.0)
+            self.grind_depth.set(0.0)
+            self.grind_angle.set(0.0)
+            self.rotation_angle.set(0)
+            self.mosaic_size.set(1)
+            self.white_layer_thickness.set(1.0)
+            self.black_layer_thickness.set(1.0)
+            self.custom_layer_stack = None
+            self.update_unit_display()
+            # Load default pattern which will also call update_pattern()
+            self.load_default_pattern()
+            print("[DEBUG] Reset All complete")
+        except Exception as e:
+            print(f"[ERROR] Reset All failed: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def show_about(self):
+        """Show about dialog"""
+        about_text = """Damascus Pattern Simulator
+Version 1.1
+
+Simulate Damascus steel patterns with:
+• Twist transformations
+• Grind depth and angle control
+• Custom layer stacks
+• Mosaic pattern generation
+• W and C pattern presets
+
+Created for Linux
+Inspired by Thor II by Christian Schnura
+
+GitHub: github.com/gboyce1967/damascus-pattern-simulator"""
+        messagebox.showinfo("About", about_text)
     
     def apply_twist(self, pattern):
         """Apply twist transformation to the pattern"""
@@ -529,19 +677,48 @@ Inspired by Thor II"""
         return result
     
     def apply_grind(self, pattern):
-        """Simulate grinding depth"""
-        grind = self.grind_depth.get()
-        if grind == 0:
+        """Simulate grinding from the side (perpendicular to layers) with bevel angle"""
+        grind_depth = self.grind_depth.get()
+        grind_angle = self.grind_angle.get()
+        
+        if grind_depth == 0:
             return pattern
         
         height, width = pattern.shape[:2]
-        result = pattern.copy()
+        result = np.zeros_like(pattern)
         
-        # Simulate depth by shifting pattern
-        shift_amount = int((grind / 100) * height * 0.3)
+        # Rotate pattern 90 degrees to simulate side view (grinding perpendicular to layers)
+        rotated = np.rot90(pattern, k=1)
+        rot_height, rot_width = rotated.shape[:2]
         
-        if shift_amount > 0:
-            result = np.roll(result, shift_amount, axis=0)
+        # Calculate grind depth in pixels
+        max_grind = rot_height * 0.8  # Max 80% of height
+        grind_pixels = int((grind_depth / 100) * max_grind)
+        
+        # Apply bevel angle - creates angled cut across the width
+        angle_rad = math.radians(grind_angle)
+        
+        for y in range(rot_height):
+            for x in range(rot_width):
+                # Calculate the effective grind depth at this x position based on angle
+                if grind_angle > 0:
+                    # Linear interpolation across width for bevel
+                    angle_offset = int((x / rot_width) * grind_pixels * math.tan(angle_rad))
+                    effective_grind = grind_pixels - angle_offset
+                else:
+                    effective_grind = grind_pixels
+                
+                # Map to source position - deeper grind reveals deeper layers
+                source_y = y + effective_grind
+                
+                if 0 <= source_y < rot_height:
+                    result[y, x] = rotated[source_y, x]
+                else:
+                    # If we've ground past available pattern, show black
+                    result[y, x] = [50, 50, 50]
+        
+        # Rotate back to original orientation
+        result = np.rot90(result, k=-1)
         
         return result
     
@@ -584,10 +761,19 @@ Inspired by Thor II"""
             return
         
         try:
-            # Start with mosaic (applies to base pattern)
-            result = self.apply_mosaic(self.pattern_array.copy())
+            # Start with base pattern
+            result = self.pattern_array.copy()
             
-            # Apply transformations in order
+            # Apply rotation first
+            rotation = self.rotation_angle.get()
+            if rotation != 0:
+                k = rotation // 90  # Number of 90-degree rotations
+                result = np.rot90(result, k=k)
+            
+            # Apply mosaic
+            result = self.apply_mosaic(result)
+            
+            # Apply other transformations
             result = self.apply_twist(result)
             result = self.apply_grind(result)
             
@@ -757,7 +943,7 @@ class CustomLayerDialog:
         self.simulator = simulator
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Custom Layer Builder")
-        self.dialog.geometry("600x850")
+        self.dialog.geometry("650x900")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
@@ -1088,6 +1274,128 @@ class CustomLayerDialog:
                 messagebox.showinfo("Success", f"Loaded {len(self.layers)} layers")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load layer stack: {e}")
+
+class MosaicBuilderDialog:
+    """Dialog for building custom mosaic patterns"""
+    def __init__(self, parent, simulator):
+        self.simulator = simulator
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title("Custom Mosaic Builder")
+        self.dialog.geometry("600x500")
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        
+        self.setup_ui()
+    
+    def setup_ui(self):
+        """Create the dialog UI"""
+        main_frame = ttk.Frame(self.dialog, padding=20)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Title
+        ttk.Label(main_frame, text="Custom Mosaic Pattern Builder",
+                 font=('Arial', 12, 'bold')).pack(pady=(0, 10))
+        ttk.Label(main_frame, text="Create custom mosaic arrangements using your current pattern",
+                 font=('Arial', 9)).pack(pady=(0, 20))
+        
+        # Pattern type selection
+        type_frame = ttk.LabelFrame(main_frame, text="Mosaic Type", padding=15)
+        type_frame.pack(fill=tk.X, pady=10)
+        
+        self.mosaic_type = tk.StringVar(value="straight")
+        ttk.Radiobutton(type_frame, text="Straight Line", variable=self.mosaic_type,
+                       value="straight").pack(anchor=tk.W, pady=5)
+        ttk.Radiobutton(type_frame, text="Checkerboard", variable=self.mosaic_type,
+                       value="checkerboard").pack(anchor=tk.W, pady=5)
+        
+        # Tile count configuration
+        count_frame = ttk.LabelFrame(main_frame, text="Tile Configuration", padding=15)
+        count_frame.pack(fill=tk.X, pady=10)
+        
+        # Horizontal tiles
+        ttk.Label(count_frame, text="Horizontal Tiles:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        self.h_tiles = tk.IntVar(value=2)
+        h_spinbox = ttk.Spinbox(count_frame, from_=1, to=10, textvariable=self.h_tiles, width=10)
+        h_spinbox.grid(row=0, column=1, padx=(10,0), pady=5)
+        
+        # Vertical tiles
+        ttk.Label(count_frame, text="Vertical Tiles:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        self.v_tiles = tk.IntVar(value=2)
+        v_spinbox = ttk.Spinbox(count_frame, from_=1, to=10, textvariable=self.v_tiles, width=10)
+        v_spinbox.grid(row=1, column=1, padx=(10,0), pady=5)
+        
+        # Action buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=20)
+        
+        ttk.Button(button_frame, text="Generate Mosaic",
+                  command=self.generate_mosaic).pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+        ttk.Button(button_frame, text="Cancel",
+                  command=self.dialog.destroy).pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+    
+    def generate_mosaic(self):
+        """Generate the custom mosaic pattern"""
+        if self.simulator.original_image is None:
+            messagebox.showwarning("No Pattern", "Please create or load a pattern first")
+            return
+        
+        mosaic_type = self.mosaic_type.get()
+        h_tiles = self.h_tiles.get()
+        v_tiles = self.v_tiles.get()
+        
+        # Get the base pattern and apply rotation if set
+        # This ensures we use the pattern as it currently appears (with rotation)
+        tile_pattern = self.simulator.pattern_array.copy()
+        
+        # Apply rotation to match what user sees
+        rotation = self.simulator.rotation_angle.get()
+        if rotation != 0:
+            k = rotation // 90  # Number of 90-degree rotations
+            tile_pattern = np.rot90(tile_pattern, k=k)
+        
+        tile_height, tile_width = tile_pattern.shape[:2]
+        
+        # Calculate result dimensions based on number of tiles
+        # h_tiles = number of tiles horizontally (across width)
+        # v_tiles = number of tiles vertically (down height)
+        result_width = tile_width * h_tiles
+        result_height = tile_height * v_tiles
+        
+        # Create mosaic canvas
+        result = np.zeros((result_height, result_width, 3), dtype=np.uint8)
+        
+        # Fill with tiles - each tile is the complete pattern
+        # i = vertical index (rows), j = horizontal index (columns)
+        for i in range(v_tiles):
+            for j in range(h_tiles):
+                y_start = i * tile_height
+                x_start = j * tile_width
+                y_end = y_start + tile_height
+                x_end = x_start + tile_width
+                
+                if mosaic_type == "checkerboard":
+                    # Alternate rotation for checkerboard pattern
+                    if (i + j) % 2 == 1:
+                        rotated_tile = np.rot90(tile_pattern, k=2)
+                        result[y_start:y_end, x_start:x_end] = rotated_tile
+                    else:
+                        result[y_start:y_end, x_start:x_end] = tile_pattern
+                else:
+                    # Straight line - all tiles same orientation
+                    result[y_start:y_end, x_start:x_end] = tile_pattern
+        
+        # Update the simulator with new mosaic pattern
+        self.simulator.original_image = Image.fromarray(result)
+        self.simulator.pattern_array = result
+        self.simulator.current_pattern_type = 'custom_mosaic'
+        
+        # Reset rotation since it's now baked into the mosaic
+        self.simulator.rotation_angle.set(0)
+        
+        self.simulator.update_pattern()
+        
+        self.dialog.destroy()
+        messagebox.showinfo("Success", f"Created {h_tiles}x{v_tiles} {mosaic_type} mosaic pattern")
 
 def main():
     root = tk.Tk()
