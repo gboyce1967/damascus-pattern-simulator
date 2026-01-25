@@ -992,24 +992,38 @@ GitHub: github.com/gboyce1967/damascus-pattern-simulator"""
     
     def update_pattern(self, *args):
         """Update the displayed pattern with all transformations"""
+        self.debug_print("update_pattern() called")
         if self.pattern_array is None:
+            self.debug_print("No pattern_array to update")
             return
         
         try:
             # Start with base pattern
             result = self.pattern_array.copy()
+            self.debug_print(f"Base pattern: {result.shape}")
             
             # Apply rotation first
             rotation = self.rotation_angle.get()
             if rotation != 0:
+                self.debug_print(f"Applying rotation: {rotation}°")
                 k = rotation // 90  # Number of 90-degree rotations
                 result = np.rot90(result, k=k)
             
             # Apply mosaic
+            mosaic_val = self.mosaic_size.get()
+            if mosaic_val > 1:
+                self.debug_print(f"Applying mosaic: {mosaic_val}x{mosaic_val}")
             result = self.apply_mosaic(result)
             
             # Apply other transformations
+            twist_val = self.twist_amount.get()
+            if twist_val > 0:
+                self.debug_print(f"Applying twist: {twist_val}")
             result = self.apply_twist(result)
+            
+            grind_val = self.grind_depth.get()
+            if grind_val > 0:
+                self.debug_print(f"Applying grind: {grind_val}% at {self.grind_angle.get()}°")
             result = self.apply_grind(result)
             
             # Convert to PIL Image
@@ -1017,6 +1031,7 @@ GitHub: github.com/gboyce1967/damascus-pattern-simulator"""
             
             # Get actual pattern dimensions
             pattern_width, pattern_height = img.size
+            self.debug_print(f"Final pattern size: {pattern_width}x{pattern_height}")
             print(f"[DEBUG] Pattern size: {pattern_width}x{pattern_height}")
             
             # Calculate scale to fit in canvas while maintaining aspect ratio
@@ -1038,8 +1053,10 @@ GitHub: github.com/gboyce1967/damascus-pattern-simulator"""
             x = (self.canvas_width - img.width) // 2
             y = (self.canvas_height - img.height) // 2
             self.canvas.create_image(x, y, anchor=tk.NW, image=self.display_image)
+            self.debug_print(f"Canvas updated at position ({x}, {y})")
             
         except Exception as e:
+            self.debug_print(f"ERROR in update_pattern: {e}")
             print(f"Error updating pattern: {e}")
     
     def save_pattern(self):
