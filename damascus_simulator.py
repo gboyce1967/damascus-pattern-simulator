@@ -471,7 +471,6 @@ class DamascusSimulator:
         self.original_image = img
         self.pattern_array = np.array(img)
         self.current_pattern_type = 'checkerboard'
-        self.reset_controls()
         self.update_pattern()
     
     def create_random_pattern(self):
@@ -493,7 +492,6 @@ class DamascusSimulator:
         self.original_image = Image.fromarray(pattern)
         self.pattern_array = pattern
         self.current_pattern_type = 'random'
-        self.reset_controls()
         self.update_pattern()
     
     def create_w_pattern(self, use_custom_stack=None):
