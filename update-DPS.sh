@@ -27,6 +27,13 @@ echo "  Damascus Pattern Simulator - Update"
 echo "=========================================="
 echo
 
+# Change to script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR" || {
+    print_error "Could not change to script directory: $SCRIPT_DIR"
+    exit 1
+}
+
 # Check if we're in a git repository
 if [ ! -d ".git" ]; then
     print_error "This directory is not a git repository."
