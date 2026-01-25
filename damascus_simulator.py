@@ -677,7 +677,7 @@ GitHub: github.com/gboyce1967/damascus-pattern-simulator"""
         return result
     
     def apply_grind(self, pattern):
-        """Simulate grinding from the side (perpendicular to layers) with bevel angle"""
+        """Simulate grinding from the side - creates a slice showing layer cross-section"""
         grind_depth = self.grind_depth.get()
         grind_angle = self.grind_angle.get()
         
@@ -687,38 +687,36 @@ GitHub: github.com/gboyce1967/damascus-pattern-simulator"""
         height, width = pattern.shape[:2]
         result = np.zeros_like(pattern)
         
-        # Rotate pattern 90 degrees to simulate side view (grinding perpendicular to layers)
-        rotated = np.rot90(pattern, k=1)
-        rot_height, rot_width = rotated.shape[:2]
+        # The pattern represents the end grain of the billet
+        # When grinding from the side, we're cutting perpendicular to what we see
+        # We need to show a cross-section at the grind depth
         
-        # Calculate grind depth in pixels
-        max_grind = rot_height * 0.8  # Max 80% of height
-        grind_pixels = int((grind_depth / 100) * max_grind)
+        # Calculate grind depth as a fraction through the depth of the billet
+        # We'll simulate depth by using the X-axis of the pattern as the depth dimension
+        max_depth = width
+        grind_pixels = int((grind_depth / 100) * max_depth * 0.8)
         
-        # Apply bevel angle - creates angled cut across the width
+        # Apply bevel angle
         angle_rad = math.radians(grind_angle)
         
-        for y in range(rot_height):
-            for x in range(rot_width):
-                # Calculate the effective grind depth at this x position based on angle
+        # For each position on the resulting ground surface
+        for y in range(height):
+            for x in range(width):
+                # Calculate depth at this position based on bevel angle
+                # Bevel: depth varies across the width (left to right creates angled surface)
                 if grind_angle > 0:
-                    # Linear interpolation across width for bevel
-                    angle_offset = int((x / rot_width) * grind_pixels * math.tan(angle_rad))
-                    effective_grind = grind_pixels - angle_offset
+                    # Normalize x position (0 to 1)
+                    x_norm = x / width
+                    # Calculate additional depth due to bevel
+                    bevel_depth = int(x_norm * grind_pixels * math.tan(angle_rad) * 2)
+                    total_depth = grind_pixels + bevel_depth
                 else:
-                    effective_grind = grind_pixels
+                    total_depth = grind_pixels
                 
-                # Map to source position - deeper grind reveals deeper layers
-                source_y = y + effective_grind
-                
-                if 0 <= source_y < rot_height:
-                    result[y, x] = rotated[source_y, x]
-                else:
-                    # If we've ground past available pattern, show black
-                    result[y, x] = [50, 50, 50]
-        
-        # Rotate back to original orientation
-        result = np.rot90(result, k=-1)
+                # Sample from the pattern at this depth
+                # Use the pattern column at total_depth as the source
+                depth_x = min(total_depth, width - 1)
+                result[y, x] = pattern[y, depth_x]
         
         return result
     
