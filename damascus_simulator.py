@@ -872,10 +872,16 @@ class DamascusSimulator:
         
                 pixels[x, y] = color
         
-        self.original_image = img
-        self.pattern_array = np.array(img)
-        self.current_pattern_type = 'ladder_pattern'
-        self.update_pattern()
+        try:
+            self.original_image = img
+            self.pattern_array = np.array(img)
+            self.current_pattern_type = 'ladder_pattern'
+            self.update_pattern()
+        except Exception as e:
+            print(f"[ERROR] Failed to create ladder pattern: {e}")
+            import traceback
+            traceback.print_exc()
+            messagebox.showerror("Error", f"Failed to create ladder pattern: {e}")
     
     def open_feather_builder(self):
         """Open dialog to build feather pattern"""
@@ -987,10 +993,16 @@ class DamascusSimulator:
                 
                 pixels[x, y] = color
         
-        self.original_image = img
-        self.pattern_array = np.array(img)
-        self.current_pattern_type = 'feather_pattern'
-        self.update_pattern()
+        try:
+            self.original_image = img
+            self.pattern_array = np.array(img)
+            self.current_pattern_type = 'feather_pattern'
+            self.update_pattern()
+        except Exception as e:
+            print(f"[ERROR] Failed to create feather pattern: {e}")
+            import traceback
+            traceback.print_exc()
+            messagebox.showerror("Error", f"Failed to create feather pattern: {e}")
     
     def create_raindrop_pattern(self, drill_configs):
         """Create a raindrop pattern with multiple drill sizes
@@ -1064,10 +1076,16 @@ class DamascusSimulator:
                             color = self.get_layer_color_at_position(cy + ring_y_offset)
                             pixels[x, y] = color
         
-        self.original_image = img
-        self.pattern_array = np.array(img)
-        self.current_pattern_type = 'raindrop_pattern'
-        self.update_pattern()
+        try:
+            self.original_image = img
+            self.pattern_array = np.array(img)
+            self.current_pattern_type = 'raindrop_pattern'
+            self.update_pattern()
+        except Exception as e:
+            print(f"[ERROR] Failed to create raindrop pattern: {e}")
+            import traceback
+            traceback.print_exc()
+            messagebox.showerror("Error", f"Failed to create raindrop pattern: {e}")
     
     def open_custom_layer_builder(self):
         """Open dialog to build custom layer stack"""
@@ -2866,9 +2884,22 @@ class RaindropBuilderDialog:
         messagebox.showinfo("Success", f"Created raindrop pattern with {len(drill_configs)} drill sizes")
 
 def main():
-    root = tk.Tk()
-    app = DamascusSimulator(root)
-    root.mainloop()
+    try:
+        root = tk.Tk()
+        app = DamascusSimulator(root)
+        
+        # Prevent accidental closure
+        def on_closing():
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                root.destroy()
+        
+        root.protocol("WM_DELETE_WINDOW", on_closing)
+        root.mainloop()
+    except Exception as e:
+        print(f"[ERROR] Application crashed: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 if __name__ == "__main__":
     main()
