@@ -1,5 +1,7 @@
 # Development notes for AI assistant
 .dev_notes.md
+DEVELOPMENT_NOTES*.md
+SESSION_NOTES*.md
 
 # Python cache
 __pycache__/
