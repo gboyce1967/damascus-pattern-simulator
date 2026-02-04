@@ -1,0 +1,41 @@
+Scientific data from industrial forging and metallurgical studies (such as the
+ASM Handbook) quantifies material loss as Burning Loss, which includes oxidation (scale) and surface decarburization. These losses vary by alloy composition, specifically the presence of Chromium (Cr), Aluminum (Al), or Silicon (Si), which form protective oxide films. 
+Forging Material Loss Data (Plain Text Format)
+1. 1084 / 1095 (High Carbon Steels)
+
+    Scale Loss Percentage: 2.0% to 5.0% of total weight per hour of soak time.
+    Decarburization Depth: 0.020" to 0.040" (0.5mm - 1.0mm) per standard session.
+    Scientific Basis: These carbon steels lack chromium to create a passive layer. Oxidation follows a parabolic growth law where the scale layer (Wustite, Magnetite, and Hematite) thickens continuously in oxygen-rich environments. Interestingly, high carbon steel sometimes shows slightly lower scale mass than low carbon steel because carbon monoxide (CO) gas generated at the surface can temporarily displace some surrounding oxygen. 
+
+2. 52100 (High Carbon / Low Chrome)
+
+    Scale Loss Percentage: 1.5% to 3.5% per hour of soak time.
+    Decarburization Depth: 0.015" to 0.030".
+    Scientific Basis: The ~1.5% Chromium content slightly retards oxidation compared to pure carbon steel, but the scale is still significant and non-protective. 
+
+3. O1 (Oil Hardening Tool Steel)
+
+    Scale Loss Percentage: 1.5% to 3.0% per hour of soak time.
+    Decarburization Depth: 0.015" to 0.025".
+    Scientific Basis: Contains Tungsten and Chromium which provide a denser oxide layer, marginally slowing oxygen diffusion to the base metal compared to 1095. 
+
+4. A2 and D2 (High Alloy / Air Hardening)
+
+    Scale Loss Percentage: 0.5% to 2.0% per hour of soak time.
+    Decarburization Depth: 0.010" to 0.020".
+    Scientific Basis: High Chromium (5% in A2, 12% in D2) forms a complex Cr-Fe oxide layer that is highly resistant to oxygen diffusion. While oxidation is low, these are sensitive to "total decarburization" if held at high heat for extended periods, requiring significant surface grinding after forging. 
+
+5. CPM 3V / CPM CruWear (Powder Metallurgy)
+
+    Scale Loss Percentage: 0.5% to 1.5% per hour of soak time.
+    Decarburization Depth: 0.005" to 0.015".
+    Scientific Basis: PM steels benefit from a extremely uniform distribution of Vanadium and Chromium, which maintains surface integrity even at forging temperatures. 
+
+Summary Table: Total Expected Weight Loss
+(Assumes a standard 1-2 hour forging session in an atmospheric furnace) 
+Steel Category 	Scale/Oxidation Loss	Decarburization Depth (Surface)
+High Carbon (1084/1095)	4.0% - 7.0%	0.030" - 0.050"
+Low Alloy (52100/O1)	3.0% - 5.0%	0.020" - 0.035"
+High Alloy (A2/D2)	1.0% - 3.0%	0.010" - 0.025"
+PM Steels (3V/CruWear)	1.0% - 2.0%	0.008" - 0.020"
+Note on Forging Atmosphere: Scientific testing confirms that a Reducing Atmosphere (fuel-rich) can reduce these losses by over 50%, while an Oxidizing Atmosphere (air-rich) can accelerate them exponentially. 

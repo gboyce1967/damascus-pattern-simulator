@@ -27,6 +27,7 @@ Thumbs.db
 *.log
 damascus_3d_debug_*.log
 app_output.log
+custom_steels.json
 
 # Temporary screenshot/image files from testing
 canvas_background.png

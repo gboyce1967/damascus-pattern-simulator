@@ -1,0 +1,112 @@
+1. O1 OIL-HARDENING TOOL STEEL (High Carbon / Low Alloy)
+Physical Properties:
+
+    Density: 0.283 lb/in3
+    Thermal Expansion (RT to 1000F): 7.7 x 10^-6 in/in/F
+    Thermal Conductivity (at 212F): 19.0 BTU/hr/ft/F
+    Modulus of Elasticity: 30 psi x 10^6
+
+Heat Treatment Specifications:
+
+    Annealing: Heat to 1450F, cool at 20F per hour to 900F. Result: 190-210 Brinell.
+    Stress Relieving: 1200F - 1250F, hold 1 hour, air cool.
+    Austenitizing (Hardening): 1450F - 1500F, soak 10-30 mins depending on thickness.
+    Quench: Warm oil (125F) to 150F.
+    Tempering (Double temper 2 hours each):
+        300F: 63-65 HRC
+        400F: 61-63 HRC
+        500F: 58-60 HRC
+
+2. CPM MAGNACUT (High Alloy / Powder Metallurgy)
+Physical Properties:
+
+    Density: 0.280 lb/in3
+    Thermal Expansion (RT to 1100F): 6.4 x 10^-6 in/in/F
+    Thermal Conductivity (at 212F): 11.2 BTU/hr/ft/F
+    Modulus of Elasticity: 31 psi x 10^6
+
+Heat Treatment Specifications:
+
+    Austenitizing (Hardening): 2050F, soak 20 mins. (Must use foil wrap or vacuum to prevent decarburization).
+    Quench: Plate quench or fast air to room temperature.
+    Cold Treatment: Cryogenic treatment (Liquid Nitrogen) or Sub-zero (-100F) for 2 hours required immediately after quench.
+    Tempering (Double temper 2 hours each):
+        300F: 61-63 HRC (Maximum Toughness)
+        350F: 60-62 HRC
+    Impact Toughness: 16 ft-lbs (Charpy C-Notch) at 62 HRC.
+
+3. A2 TOOL STEEL (Air Hardening / Chrome-Moly)
+Physical Properties:
+
+    Density: 0.284 lb/in3
+    Thermal Expansion (RT to 1000F): 7.5 x 10^-6 in/in/F
+    Thermal Conductivity (at 212F): 15.1 BTU/hr/ft/F
+    Modulus of Elasticity: 29 psi x 10^6
+
+Heat Treatment Specifications:
+
+    Preheat: 1100F - 1200F, equalize temperature.
+    Austenitizing (Hardening): 1750F - 1800F, soak 30-45 mins.
+    Quench: Still air or positive pressure air quench to 150F.
+    Tempering (Double temper 2 hours each):
+        350F: 60-62 HRC
+        400F: 59-60 HRC
+        500F: 57-58 HRC
+    Impact Toughness: 40 ft-lbs (Charpy C-Notch) at 60 HRC.
+
+4. CPM CRUWEAR (High Carbon / High Alloy)
+Physical Properties:
+
+    Density: 0.282 lb/in3
+    Thermal Expansion (RT to 1000F): 7.0 x 10^-6 in/in/F
+    Thermal Conductivity (at 212F): 10.5 BTU/hr/ft/F
+    Modulus of Elasticity: 30 psi x 10^6
+
+Heat Treatment Specifications:
+
+    Preheat: 1550F, equalize temperature.
+    Austenitizing: 1950F (for 62 HRC) to 2050F (for 64 HRC), soak 20-30 mins.
+    Quench: Air or plate quench to below 125F.
+    Tempering: Triple temper at 1000F for 2 hours each for maximum stability and secondary hardness.
+    Impact Toughness: 25-30 ft-lbs at 62 HRC.
+
+5. 1084 HIGH CARBON STEEL
+Physical Properties:
+
+    Density: 0.284 lb/in3
+    Thermal Expansion (RT to 600F): 7.2 x 10^-6 in/in/F
+    Thermal Conductivity (at 212F): 28.0 BTU/hr/ft/F
+    Modulus of Elasticity: 30 psi x 10^6
+
+Heat Treatment Specifications:
+
+    Normalizing: 1600F, hold 10 mins, air cool.
+    Austenitizing (Hardening): 1500F, soak 5-10 mins.
+    Quench: Oil quench (Medium speed oil like Parks 50 or preheated Canola).
+    Tempering (Double temper 2 hours each):
+        350F: 61-62 HRC
+        400F: 59-60 HRC
+        450F: 57-58 HRC
+
+15N20 High Nickel Alloy Steel
+Physical Properties
+
+    Density: 0.284 lb/in3
+    Thermal Expansion (RT to 600F): 7.1 x 10^-6 in/in/F
+    Thermal Conductivity (at 212F): 26.5 BTU/hr/ft/F
+    Modulus of Elasticity: 30 psi x 10^6
+    Typical Composition: 0.75% Carbon, 2.0% Nickel, 0.40% Manganese.
+
+Forging Movement and Loss
+
+    Forging Range: 1650F to 2100F.
+    Movement Level: 3/10 (Moderate). It is slightly stiffer than 1084 due to the Nickel content but remains very plastic.
+    Scale Loss Percentage: 1.5% to 3.0% per hour of soak time.
+    Decarburization Depth: 0.015" to 0.025" (0.4mm to 0.6mm).
+    Characteristics: In pattern-welded Damascus, 15N20 provides the bright, shiny layers because Nickel resists the acid etchant. The Nickel also makes the scale "tighter" and slightly more difficult to pop off compared to 1095.
+
+Temperature Behavior Summary
+
+    Softening Resistance: Carbon steels (1084, O1) begin losing significant hardness above 400F. High alloy/PM steels (CruWear, A2) retain functional hardness up to 900F-1000F.
+    Dimensional Stability: Air-hardening steels (A2, CPM 3V, Magnacut) exhibit significantly less distortion during quench than oil-hardening steels (O1, 1084).
+    Yield Strength: Generally increases with hardness (HRC), but alloyed steels maintain higher yield strength at elevated temperatures compared to simple carbon steels.

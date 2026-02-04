@@ -1,0 +1,81 @@
+ProCut High Carbon / Nickel / Tungsten / Vanadium Steel
+(Pop's Knife Supply / Larrin Thomas collaboration)
+
+COMPOSITION:
+C: 0.866%
+Si: 0.215%
+Mn: 0.352%
+Cr: 0.24%
+Ni: 1.99%
+V: 0.23%
+W: 1.23%
+
+CATEGORY: High Carbon / Nickel Alloy
+Damascus Bright Layer Steel (alternative to 15N20)
+
+FORGING TEMPERATURE:
+2200°F (1200°C) maximum
+Wide forging range - very forgiving
+Do not overheat or forge too cold to avoid cracking
+
+NORMALIZING:
+1650°F (900°C) for 10-15 minutes, air cool
+Can use 1625-1675°F range for forge work
+Establish even temperature distribution before cooling
+
+ANNEALING:
+1350°F (730°C) for 30 minutes, cool at 100°F/hr to 1100°F (50°C/hr to 595°C)
+Alternative: Heat to nonmagnetic and slowly cool in vermiculite
+
+AUSTENITIZING:
+Two options depending on desired properties:
+- High wear resistance: 1500°F (815°C) for 10-15 minutes (more carbide retained)
+- High toughness: 1650°F (900°C) for 10-15 minutes (maximum toughness)
+
+Forge heat treating: Heat to "one shade brighter" than non-magnetic
+Grain boundaries are pinned by V/W carbides - resists grain growth even at high temps
+Very wide austenitizing range - beginner friendly
+
+QUENCH METHOD:
+Oil (most types are fine - Parks 50, preheated canola, etc.)
+Good stability in quench - easy to work with
+
+TEMPERING:
+Double temper - 2 hours each cycle
+Cool to room temperature between tempers
+
+Temperature ranges:
+- 300-400°F (150-200°C): High hardness and edge retention
+- 450°F (230°C): Maximum toughness
+- 350°F (175°C): Balanced performance
+
+Specific heat treatment examples:
+- 1550°F austenitize + 450°F temper = 62 HRC
+- 1500°F austenitize + 375°F temper = 63 HRC
+- 1650°F austenitize + 450°F temper = 61.2 HRC (high toughness)
+- 1500°F austenitize + 300°F temper = 64 HRC (high edge retention)
+
+RECOMMENDED HEAT TREATMENT (furnace):
+Austenitize: 2050°F (1120°C) - if using advanced equipment
+Quench to below 125°F (50°C)
+Double temper at 350°F (175°C) for 2 hrs minimum each
+Cool to hand warm between tempers
+Aim hardness: 60-63 HRC
+
+CRYOGENIC TREATMENT (optional):
+Dry ice or liquid nitrogen adds 0.5-2 HRC
+Can be done after quench before tempering
+
+NOTES:
+- Exceptionally forgiving to heat treat
+- Ultra fine grain structure
+- Alternative to 15N20 for high-performance Damascus (bright layer)
+- Higher edge retention than 15N20, L6, O1, 80CrV2, 1095
+- Toughness approaches 8670, 15N20, and 5160 (depending on heat treatment)
+- Easy to grind and finish, even at higher hardnesses
+- Excellent for forge heat treating due to wide temperature window
+- Works well in Damascus with 1084, 80CrV2, and similar dark-etching steels
+- Nickel content provides bright etch layer (resists etchant)
+- V and W carbides provide wear resistance while maintaining toughness
+- Carbon content controlled to prevent toughness drop at high temps
+- Developed by Dr. Larrin Thomas (Knife Steel Nerds) and Pop's Knife Supply

@@ -1,0 +1,109 @@
+ProCut Steel - Material Losses During Forging
+
+SCALE LOSS:
+Estimated: 1.5-3.0% per hour of soak time at forging temperature
+(Similar to 15N20 due to low chromium content)
+
+Scale formation characteristics:
+- Low chromium content (0.24%) means less scale resistance than high-Cr steels
+- Similar scaling behavior to 1084, 15N20, and other low-alloy carbon steels
+- Nickel does not significantly affect scaling rate
+- Tungsten and vanadium have minimal impact on scale formation
+- Higher end of range (3%) applies to extended holds at high temperature
+- Lower end of range (1.5%) applies to efficient forging with minimal soaking
+
+Scale prevention:
+- Use anti-scale compound for heat treating in furnace
+- Forge in reducing atmosphere when possible
+- Minimize time at temperature
+- Work efficiently to reduce total heat cycles
+- Consider borax coating for Damascus work (serves as flux and scale preventer)
+
+DECARBURIZATION DEPTH:
+Estimated: 0.015-0.030 inches per forging session
+(Conservative estimate based on similar low-alloy steels)
+
+Decarb characteristics:
+- Low alloy content provides less decarb resistance than high-chromium steels
+- Similar to 1084, 15N20, O1 in decarb susceptibility  
+- Carbon content of 0.866% makes decarb visible after etching
+- Decarb appears as hazy or "bling" surface layer
+- More pronounced with repeated heat cycles
+- Damascus forging with multiple heats increases total decarb
+
+Decarb prevention:
+- Use controlled atmosphere (reducing atmosphere preferred)
+- Apply anti-scale compound before heat treating in oven
+- Minimize exposure time to oxidizing atmosphere
+- Forge efficiently to reduce number of heats
+- Plan to grind off decarb layer during finishing (typical: 0.030-0.050" removal)
+- For thin Damascus, decarb becomes more significant percentage of total thickness
+
+RECOMMENDED MATERIAL ALLOWANCES:
+
+For stock removal work:
+- Minimal scale loss (controlled furnace atmosphere)
+- Decarb: Plan to remove 0.020-0.030" from surfaces
+- Buy stock thickness accounting for surface grinding
+
+For forged blades:
+- Scale loss: 2-3% of material mass
+- Decarb: 0.020-0.040" depending on number of heats
+- Plan bar stock size accordingly (allow extra for scale and decarb removal)
+
+For Damascus forging:
+- Scale loss: 2-4% due to multiple heats and long welding sessions
+- Decarb: 0.025-0.040" per side
+- Plan initial billet size with 10-15% extra material
+- More heats = more loss (minimize by working at proper temp and forging efficiently)
+
+MATERIAL EFFICIENCY TIPS:
+- Work at correct temperature (not too hot, not too cold)
+- Minimize soak time at welding temperature
+- Use proper forge atmosphere (slightly reducing)
+- Cover steel with flux/borax for Damascus work
+- Plan grinding allowance for decarb removal
+- Consider that thinner stock loses higher percentage to decarb
+
+COMPARISON TO OTHER STEELS:
+
+Low scale/decarb (better):
+- High chromium steels (D2, A2): 1-2% scale, 0.010-0.020" decarb
+- Stainless steels: Minimal scale, very low decarb
+
+Medium scale/decarb (ProCut is here):
+- 1084, 1095: 2-4% scale, 0.020-0.040" decarb
+- 15N20: 1.5-3% scale, 0.015-0.025" decarb
+- ProCut: 1.5-3% scale, 0.015-0.030" decarb
+- O1: 1.5-3% scale, 0.015-0.025" decarb
+- 80CrV2: 2-3.5% scale, 0.020-0.035" decarb
+
+High scale/decarb (worse):
+- Simple carbon steels without protective coatings: 3-5% scale, 0.030-0.050" decarb
+
+DAMASCUS-SPECIFIC CONSIDERATIONS:
+- Forge welding typically requires 2100-2300°F
+- Extended time at welding temp increases losses
+- Multiple drawing and re-welding cycles compound losses
+- Each heat cycle adds to total decarb depth
+- Plan final thickness considering:
+  * Minimum 0.030" removal each side for clean steel
+  * Pattern depth requirements
+  * Sufficient core material for strength
+- A 1/4" thick damascus billet may need 1/8" removed total (both sides) for clean finish
+- Start thicker than final desired dimension
+
+ETCH APPEARANCE:
+ProCut etches as BRIGHT layer in Damascus (due to nickel content)
+- Resists ferric chloride etchant (similar to 15N20)
+- Provides high contrast with dark-etching steels (1084, 80CrV2, etc.)
+- Nickel content (1.99%) provides excellent etch resistance
+- Cleaner surface finish than traditional bright layer steels
+- Superior edge retention while maintaining bright etch
+
+NOTES:
+- Actual losses vary with forging technique, atmosphere, and number of heats
+- Values given are conservative estimates based on similar steel compositions
+- Controlled atmosphere significantly reduces both scale and decarb
+- Damascus work inherently has higher losses due to multiple heats
+- Plan material purchases with 15-20% extra for forging losses and cleanup

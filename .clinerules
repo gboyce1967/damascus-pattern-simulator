@@ -1,5 +1,11 @@
 # Damascus Pattern Simulator - Project Rules
 
+## Session Management
+- ALWAYS read SESSION_NOTES.md at the start of each session to understand current state
+- Check for uncommitted work and pending tasks
+- Review what was completed in the last session
+- Follow the TODO priorities listed in the session notes
+
 ## Code Style
 - Use 4-space indentation (no tabs)
 - Keep functions under 100 lines when possible

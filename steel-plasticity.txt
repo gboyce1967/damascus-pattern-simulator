@@ -1,0 +1,84 @@
+Forging Movement Characteristics (Plain Text Format)
+Below are the physical deformation behaviors and thermal expansion characteristics for these steels at forging temperatures (1800F - 2200F).
+1. 1084 / 1095 (High Carbon Steel)
+
+    Forging Range: 1650F to 2150F.
+    Movement Level: High (Low Flow Stress).
+    Characteristics: Moves very easily under the hammer. It has the highest plasticity of this group. It scales heavily in an atmospheric forge.
+    Thermal Behavior: High thermal conductivity means it loses heat to the anvil/dies very fast. Small sections go from forging temp to "too cold" in seconds.
+    Linear Expansion: Expands approx 1.4% at 2000F.
+
+2. 52100 (High Carbon / Low Chrome)
+
+    Forging Range: 1700F to 2100F.
+    Movement Level: Moderate.
+    Characteristics: Noticeably stiffer than simple carbon steel. It resists "spreading" or "drawing out" and requires heavier blows.
+    Thermal Behavior: Holds heat slightly longer than 1084. Highly sensitive to overheating; if forged above 2150F, the grain structure can crumble (red shortness).
+    Linear Expansion: Expands approx 1.35% at 2000F.
+
+3. O1 (Oil Hardening Tool Steel)
+
+    Forging Range: 1800F to 2100F.
+    Movement Level: Moderate-Stiff.
+    Characteristics: Moves predictably but is viscous. It does not "splash" under the hammer like carbon steel; it resists deformation.
+    Thermal Behavior: Must stop forging at 1550F. Because it is deep-hardening, hitting it while it cools through the critical range will cause "spider-web" internal cracking.
+
+4. A2 and D2 (Air Hardening / High Alloy)
+
+    Forging Range: 1850F to 2150F.
+    Movement Level: Stiff (High Flow Stress).
+    Characteristics: These steels have high "hot hardness." They resist movement significantly. Under a manual hammer, you will see very little displacement per strike.
+    Thermal Behavior: Low thermal conductivity. The outside can be yellow-hot while the core is still red. Requires a long "soak" time in the forge to move safely.
+    Linear Expansion: Expands approx 1.25% at 2000F.
+
+5. CPM 3V / CPM CruWear (Powder Metallurgy)
+
+    Forging Range: 1900F to 2100F.
+    Movement Level: Very Stiff / Extreme.
+    Characteristics: These steels feel like hitting cold mild steel even when at a yellow heat. The uniform vanadium carbide structure makes them resist plastic flow.
+    Thermal Behavior: Very slow to heat up and very slow to cool down. Best worked with a power hammer or high-tonnage hydraulic press. Hand-forging these is extremely labor-intensive.
+
+Deformation Resistance Scale (1-10)
+(1 = Soft/Easily Moved, 10 = Hard/Highly Resistant)
+
+    1084/1095 Carbon: 2
+    52100 Alloy: 4
+    O1 Tool Steel: 5
+    A2 Tool Steel: 8
+    D2 Tool Steel: 9
+    CPM 3V / CruWear: 10
+
+Forging Physics Summary
+
+    Flow Stress: High alloy steels (D2, 3V) require roughly 3 to 4 times more pressure (PSI) to achieve the same amount of "squish" as 1084 at 2000F.
+    Heat Retention: High-alloy steels have lower thermal conductivity, meaning they stay at forging temperature longer than carbon steels but take twice as long to "soak" to the core in the forge.
+    Recovery: After forging any of these, a "Normalizing" cycle is required to reset the grain size, followed by a "Spheroidizing" cycle to make the steel soft enough to grind or drill.
+    
+15N20 Plasticity Characteristics at Forging Temperatures
+At forging temperatures (1800°F to 2200°F), 15N20 behaves as a high-carbon nickel alloy steel with distinctive plastic flow characteristics due to its 2.0% Nickel content. Below are the specific plasticity details in plain text. 
+1. Flow Stress and Deformation Resistance 
+
+    Resistance Level: 3/10 (where 1084 is 2/10 and D2 is 9/10).
+    Behavior: 15N20 exhibits low to moderate flow stress, meaning it requires slightly more energy to "squish" than 1084, but significantly less than highly alloyed tool steels.
+    Nickel Effect: The 2.0% Nickel addition increases the strength of the austenite matrix at high heat, which makes the steel feel "stiff" or "viscous" rather than "buttery" when compared to simple carbon steels.
+
+2. Dynamic Recrystallization (DRX)
+
+    Process: During hot forging between 1900°F and 2100°F, 15N20 undergoes dynamic recrystallization. This is a self-softening mechanism where new, strain-free grains form during deformation.
+    Grain Stability: Nickel is a strong austenite stabilizer, which helps 15N20 resist the rapid, uncontrolled grain growth common in 1095 at temperatures above 2150°F. This results in more uniform plastic flow across the cross-section of the billet. 
+
+3. Hot Ductility and "Red Shortness" Resistance
+
+    Ductility: 15N20 maintains high hot ductility throughout its forging range. It is less prone to "edge checking" (cracking at the edges) during aggressive drawing-out operations than 52100 or 1095.
+    Temperature Floor: Plasticity remains high down to roughly 1600°F. Below this temperature, flow stress increases sharply, and the risk of internal stress fractures rises as the material enters the thermal softening decline zone.
+
+4. Pattern-Welded (Damascus) Interaction
+
+    Plasticity Matching: 15N20 is the industry standard for pairing with 1080 or 1084 because their plasticity rates at 2100°F are very similar. This ensures that when a billet is hammered or pressed, the layers deform at nearly the same rate, preventing the "shearing" of layers that occurs when pairing steels with vastly different flow stresses (like 1084 and D2).
+    Nickel Diffusion: At forging temperatures, the Nickel in 15N20 acts as a barrier to carbon migration. While it doesn't stop it entirely, it influences the local plasticity at the weld interface, keeping the high-contrast boundaries sharp during heavy deformation. 
+
+5. Summary of Forging Movement (Plain Text)
+
+    Relative Ease of Movement: Highly Plastic (Easy to draw, taper, and upset).
+    Hammer Feedback: Consistent, firm resistance; does not "mush" under the hammer.
+    Workability: Excellent; arguably the best-performing alloy for complex hand-forging among hardenable steels.

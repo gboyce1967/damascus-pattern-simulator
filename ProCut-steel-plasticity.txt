@@ -1,0 +1,69 @@
+ProCut Steel - Physical Properties and Plasticity
+
+PHYSICAL PROPERTIES:
+Density: ~0.284 lb/in³ (similar to other high carbon steels, slightly adjusted for Ni/W content)
+Thermal Expansion: ~7.0-7.2 × 10⁻⁶ in/in/°F (typical for nickel-bearing carbon steels)
+Thermal Conductivity: ~26-28 BTU/hr/ft/°F (nickel slightly reduces conductivity vs plain carbon)
+Modulus of Elasticity: ~30 × 10⁶ psi (30 million psi - standard for carbon steels)
+
+MOVEMENT LEVEL DURING FORGING: 2-3 (on 1-10 scale)
+1 = Very easy to move
+10 = Very stiff
+
+ProCut movement characteristics:
+- Very forgiving and easy to forge
+- Wide working temperature range (up to 2200°F)
+- Moves similarly to 1080/1084 despite alloy additions
+- Easier to work than high-chromium steels
+- Tungsten and vanadium additions have minimal impact on forgeability
+- Nickel improves hot working characteristics
+- Excellent stability during forging - does not crack easily
+- Beginner-friendly forging behavior
+
+COMPARISON TO OTHER STEELS:
+Movement Level 1-2: 1084, 1095, 15N20 (very easy)
+Movement Level 2-3: ProCut, 1080 (easy)
+Movement Level 3-4: 80CrV2, 52100 (moderate)
+Movement Level 5-7: O1, A2, D2 (stiff)
+Movement Level 8-10: CPM steels, high-carbide steels (very stiff)
+
+FORGEABILITY NOTES:
+- Wide temperature window provides margin for error
+- Does not require precise temperature control like some alloy steels
+- Can be forged successfully by beginners
+- Excellent for Damascus forging - pairs well with 1084, 80CrV2
+- Twisting and pattern manipulation works well
+- Deformation characteristics similar to simpler carbon steels
+- No special techniques required compared to 1084/15N20
+
+GRAIN STRUCTURE:
+- Ultra-fine grain structure achievable
+- Vanadium and tungsten carbides "pin" grain boundaries
+- Resists grain growth even at high austenitizing temperatures
+- This allows wide heat treatment window without toughness loss
+- Fine carbides contribute to excellent mechanical properties
+
+DAMASCUS COMPATIBILITY:
+- Excellent forge welding characteristics
+- Similar movement to 1084 - good match for Damascus
+- Replaces 15N20 as bright layer with improved performance
+- Higher edge retention than traditional bright layer steels
+- Good contrast when etched (bright layer due to nickel)
+- Tested successfully with 1084, 80CrV2, and other dark-etching steels
+- Forge welding temps: 2100-2300°F typical for Damascus work
+- Does not require flux additives beyond standard borax-based flux
+
+MACHINABILITY:
+- Easy to work with in annealed condition
+- Drillable and grindable without difficulty
+- Easier to grind than high-chromium steels
+- Can be ground at higher hardnesses (64+ HRC) without excessive difficulty
+- Good surface finish achievable
+- Does not load grinding belts excessively
+
+GRINDING/FINISHING:
+- Easy to grind and finish even at high hardness
+- Better than D2, A2, or powder metallurgy steels
+- Similar to simple carbon steels in grinding behavior
+- Takes excellent polish
+- Clean surface finish in Damascus applications
