@@ -18,7 +18,7 @@ FEATURES:
 UI LAYOUT:
 ----------
 ┌─────────────────────────────────────────────────────┐
-│ Menu Bar (File, View, Help)                        │
+│ Menu Bar (File, View, Help)                         │
 ├──────────────────┬──────────────────────────────────┤
 │                  │                                  │
 │  Pattern Select  │      3D Viewport                 │
