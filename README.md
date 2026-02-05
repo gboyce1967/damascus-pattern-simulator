@@ -203,8 +203,7 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 ### File Structure
 - `damascus_3d_gui.py` - Main GUI application (1,700+ lines)
 - `damascus_3d_simulator.py` - 3D physics engine (1,400+ lines)
-- `Notes/3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
-- `Notes/SESSION_NOTES_*.md` - Development session logs
+- `3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
 - `Research/` - Pattern research and deformation math references
 - `data/` - Steel data files and lookup module
 - `Staging/` - Prepared files for integration
@@ -244,10 +243,9 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 ## 📖 Documentation
 
 ### Included Documentation
-- `Notes/3D_DEVELOPMENT_NOTES.md` - Complete technical documentation (1,100+ lines)
-- `Notes/SESSION_NOTES_2026-02-02.md` - Forging physics implementation notes
-- `Notes/SESSION_NOTES_2026-02-04.md` - Build plate system implementation notes
+- `3D_DEVELOPMENT_NOTES.md` - Complete technical documentation (1,100+ lines)
 - `Research/FEATHER_PATTERN_PHYSICS.md` - Feather pattern deformation physics (IN DEVELOPMENT)
+- `Research/FEATHER_PATTERN_NOTES.md` - Feather pattern deformation notes
 - `Research/material-deformation-math.md` - Mathematical models for deformation
 - `Installation_and_Launch/INSTALL_WINDOWS.md` - Windows installation and setup walkthrough
 
