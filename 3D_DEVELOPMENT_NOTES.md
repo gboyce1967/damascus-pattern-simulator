@@ -1075,6 +1075,20 @@ When investigating issues:
 
 ## CHANGELOG
 
+### Version 2.1 (2026-02-05) - DEBUGGING + WINDOWS TOOLING HARDENING
+- Added live Tkinter debug console streaming via `TkTextLogHandler` in `damascus_3d_gui.py`
+- Added API call instrumentation wrappers in `damascus_3d_simulator.py` using `inspect` and `functools`
+- Added structured `API_CALL` log records with callable name, source file, and definition line
+- Added Windows installation tooling/docs (`install_windows.bat`, `run_windows.bat`, `INSTALL_WINDOWS.md`)
+- Updated Windows installer logic to require Python 3.12 for Open3D compatibility
+
+### Version 2.0-beta (2026-02-04) - BUILD PLATE SYSTEM + GUI BETA RELEASE
+- Added static build plate dimensions and visual workspace boundary in the 3D viewport
+- Added oversized billet/forging validation with auto-resize choices (resize/continue/cancel)
+- Added stable build-plate-based viewport scaling for a consistent workspace reference frame
+- Added GUI forging workflows for square and octagonal bars with volume-conservation-driven sizing
+- Added beta release documentation and session notes for the build plate rollout
+
 ### Version 2.0 (2026-02-02) - 3D MESH-BASED REWRITE
 - **BREAKING CHANGE**: Complete rewrite from 2D to 3D
 - Added DamascusLayer class with 3D mesh representation
@@ -1115,4 +1129,4 @@ Gary's realization that "pixels can't deform physically" led to the complete
 ---
 
 *End of Development Notes*
-*Last Updated: 2026-02-02 00:10 UTC*
+*Last Updated: 2026-02-05*
