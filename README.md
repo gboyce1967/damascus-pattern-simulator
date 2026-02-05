@@ -42,7 +42,8 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
 ### Recent Updates (2026-02-05)
 - Added live debug console streaming in `damascus_3d_gui.py` via `TkTextLogHandler`
 - Added API call instrumentation logs in `damascus_3d_simulator.py` (callable, source file, definition line)
-- Added Windows install/run support files (`install_windows.bat`, `run_windows.bat`, `INSTALL_WINDOWS.md`)
+- Added project folder organization for clarity: `Notes/`, `Research/`, `data/`, `Staging/`, `testing/`, `Installation_and_Launch/`
+- Added Windows install/run support files (`Installation_and_Launch/install_windows.bat`, `run_windows.bat`, `Installation_and_Launch/INSTALL_WINDOWS.md`, `Installation_and_Launch/requirements.txt`)
 - Updated Windows installer to enforce Python 3.12 for Open3D compatibility
 - Consolidated beta documentation into the root `README.md` so release notes stay current
 
@@ -202,8 +203,13 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 ### File Structure
 - `damascus_3d_gui.py` - Main GUI application (1,700+ lines)
 - `damascus_3d_simulator.py` - 3D physics engine (1,400+ lines)
-- `3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
-- `SESSION_NOTES_*.md` - Development session logs
+- `Notes/3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
+- `Notes/SESSION_NOTES_*.md` - Development session logs
+- `Research/` - Pattern research and deformation math references
+- `data/` - Steel data files and lookup module
+- `Staging/` - Prepared files for integration
+- `testing/` - PoC/test scripts
+- `Installation_and_Launch/` - Windows installation assets and packaging config
 - **Old/Deprecated**: `damascus_simulator.py` - Old 2D version (DO NOT USE)
 
 ---
@@ -238,12 +244,12 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 ## 📖 Documentation
 
 ### Included Documentation
-- `3D_DEVELOPMENT_NOTES.md` - Complete technical documentation (1,100+ lines)
-- `SESSION_NOTES_2026-02-02.md` - Forging physics implementation notes
-- `SESSION_NOTES_2026-02-04.md` - Build plate system implementation notes
-- `FEATHER_PATTERN_PHYSICS.md` - Feather pattern deformation physics (IN DEVELOPMENT)
-- `material-deformation-math.md` - Mathematical models for deformation
-- `INSTALL_WINDOWS.md` - Windows installation and setup walkthrough
+- `Notes/3D_DEVELOPMENT_NOTES.md` - Complete technical documentation (1,100+ lines)
+- `Notes/SESSION_NOTES_2026-02-02.md` - Forging physics implementation notes
+- `Notes/SESSION_NOTES_2026-02-04.md` - Build plate system implementation notes
+- `Research/FEATHER_PATTERN_PHYSICS.md` - Feather pattern deformation physics (IN DEVELOPMENT)
+- `Research/material-deformation-math.md` - Mathematical models for deformation
+- `Installation_and_Launch/INSTALL_WINDOWS.md` - Windows installation and setup walkthrough
 
 ### Debug Logging
 Debug logs are automatically created in the project directory:
@@ -350,8 +356,8 @@ Beta testers wanted! If you're willing to test experimental features:
 
 For questions or issues:
 1. **READ THIS README FIRST** - especially the "Known Issues" section
-2. Check documentation in `3D_DEVELOPMENT_NOTES.md`
-3. Review session notes for recent changes
+2. Check documentation in `Notes/3D_DEVELOPMENT_NOTES.md`
+3. Review session notes in `Notes/` for recent changes
 4. Check debug logs for error details (`damascus_3d_debug_*.log`)
 5. Submit GitHub issue with:
    - `[BETA]` tag
@@ -370,9 +376,9 @@ This is a personal project developed in spare time. Response times may vary:
 ## 🎓 Learning Resources
 
 New to Damascus steel patterns? Check out:
-- `3D_DEVELOPMENT_NOTES.md` - Technical background
-- `FEATHER_PATTERN_PHYSICS.md` - Pattern formation physics
-- `material-deformation-math.md` - Mathematical models
+- `Notes/3D_DEVELOPMENT_NOTES.md` - Technical background
+- `Research/FEATHER_PATTERN_PHYSICS.md` - Pattern formation physics
+- `Research/material-deformation-math.md` - Mathematical models
 
 ---
 
