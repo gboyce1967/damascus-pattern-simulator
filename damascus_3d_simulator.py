@@ -49,18 +49,35 @@ import sys
 from datetime import datetime
 import json
 from PIL import Image
+from pathlib import Path
 
 
 # ============================================================================
 # LOGGING CONFIGURATION
 # ============================================================================
 
+def _get_runtime_root() -> Path:
+    """
+    Return runtime root for generated artifacts.
+
+    - Source runs: project root (directory containing this file)
+    - Frozen runs: directory containing the executable
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
+RUNTIME_ROOT = _get_runtime_root()
+LOGS_DIR = RUNTIME_ROOT / "logs"
+
+
 def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
     """
     Configure comprehensive logging for debugging.
     
     Creates both console and file handlers with detailed formatting.
-    Log file is saved to damascus_3d_debug_<timestamp>.log
+    Log file is saved to logs/damascus_3d_debug_<timestamp>.log
     
     DEBUG CAPABILITY:
     ----------------
@@ -93,8 +110,9 @@ def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
     
     # File handler - DEBUG and above (everything for debugging)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_filename = f'damascus_3d_debug_{timestamp}.log'
-    file_handler = logging.FileHandler(log_filename)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_path = LOGS_DIR / f'damascus_3d_debug_{timestamp}.log'
+    file_handler = logging.FileHandler(log_path, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_format = logging.Formatter(
         '%(asctime)s | %(levelname)-8s | %(funcName)-25s | Line %(lineno)-4d | %(message)s',
@@ -108,7 +126,7 @@ def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
     logger.info("="*70)
     logger.info("Damascus 3D Simulator - Debug Session Started")
     logger.info(f"Timestamp: {datetime.now().isoformat()}")
-    logger.info(f"Log file: {log_filename}")
+    logger.info(f"Log file: {log_path}")
     logger.info("="*70)
     
     return logger

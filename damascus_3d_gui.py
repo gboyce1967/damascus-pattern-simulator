@@ -63,11 +63,10 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import logging
 from datetime import datetime
 import json
-import glob
 from pathlib import Path
 
 # Import our 3D Damascus engine
-from damascus_3d_simulator import Damascus3DBillet, DamascusLayer, logger
+from damascus_3d_simulator import Damascus3DBillet, DamascusLayer, logger, LOGS_DIR as SIM_LOGS_DIR
 import open3d as o3d
 
 # Import steel database
@@ -1914,7 +1913,8 @@ class Damascus3DGUI:
         self.debug_console_text = text_area
 
         # Preload the latest log file so context is visible immediately.
-        log_files = sorted(glob.glob('damascus_3d_debug_*.log'), reverse=True)
+        SIM_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        log_files = sorted(SIM_LOGS_DIR.glob('damascus_3d_debug_*.log'), reverse=True)
         logger.debug(f"Found {len(log_files)} debug log files")
         if log_files:
             logger.debug(f"Loading most recent log: {log_files[0]}")

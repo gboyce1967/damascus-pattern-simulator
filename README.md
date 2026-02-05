@@ -253,7 +253,7 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 - `Installation_and_Launch/INSTALL_WINDOWS.md` - Windows installation and setup walkthrough
 
 ### Debug Logging
-Debug logs are automatically created in the project directory:
+Debug logs are automatically created by the simulator:
 - Format: `damascus_3d_debug_YYYYMMDD_HHMMSS.log`
 - Includes: Operation details, vertex transformations, validation checks, performance metrics
 - **IMPORTANT**: Check these logs if you encounter issues
