@@ -13,6 +13,11 @@ open3d>=0.16.0
 # 2D plotting and visualization
 matplotlib>=3.5.0
 
+# 3D rendering with OpenGL (replacing matplotlib 3D)
+vispy>=0.14.0
+PyOpenGL>=3.1.0
+pyopengltk>=0.0.4  # For VisPy + Tkinter integration
+
 # Image processing
 Pillow>=9.0.0
 
