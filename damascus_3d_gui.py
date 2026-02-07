@@ -55,12 +55,17 @@ from PIL import Image, ImageTk
 import numpy as np
 import zipfile
 import os
-import matplotlib
-matplotlib.use('TkAgg')  # Use Tkinter backend for embedding
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import logging
+
+# Matplotlib is optional - only needed for cross-section export
+try:
+    import matplotlib
+    matplotlib.use('TkAgg')
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    from matplotlib.figure import Figure
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
 from datetime import datetime
 import json
 from pathlib import Path
@@ -68,6 +73,9 @@ from pathlib import Path
 # Import our 3D Damascus engine
 from damascus_3d_simulator import Damascus3DBillet, DamascusLayer, logger, LOGS_DIR as SIM_LOGS_DIR
 import open3d as o3d
+
+# Import VisPy 3D viewer (replaces matplotlib 3D)
+from vispy_3d_viewer import DamascusVispyViewer
 
 # Import steel database
 from data.steel_database import get_database
@@ -151,9 +159,7 @@ class Damascus3DGUI:
         self.current_pattern_type = None  # 'feather', 'twist', or 'raindrop'
         
         # Visualization state
-        self.fig_3d = None
-        self.ax_3d = None
-        self.canvas_3d = None
+        self.vispy_viewer = None  # VisPy 3D viewer (replaces matplotlib 3D)
         self.cross_section_image = None
         self.cross_section_display = None
         
@@ -389,17 +395,22 @@ class Damascus3DGUI:
         buildplate_frame.pack(fill=tk.X, pady=(0, 10))
         
         ttk.Label(buildplate_frame, text="Width (mm):").grid(row=0, column=0, sticky=tk.W, pady=2)
-        ttk.Spinbox(buildplate_frame, from_=100, to=1000, increment=50, 
+        ttk.Spinbox(buildplate_frame, from_=100, to=2000, increment=50, 
                    textvariable=self.build_plate_width, width=10,
                    command=lambda: self.update_3d_view()).grid(row=0, column=1, pady=2)
         
         ttk.Label(buildplate_frame, text="Length (mm):").grid(row=1, column=0, sticky=tk.W, pady=2)
-        ttk.Spinbox(buildplate_frame, from_=100, to=1000, increment=50, 
+        ttk.Spinbox(buildplate_frame, from_=100, to=2000, increment=50, 
                    textvariable=self.build_plate_length, width=10,
                    command=lambda: self.update_3d_view()).grid(row=1, column=1, pady=2)
         
+        ttk.Label(buildplate_frame, text="Height (mm):").grid(row=2, column=0, sticky=tk.W, pady=2)
+        ttk.Spinbox(buildplate_frame, from_=100, to=2000, increment=50, 
+                   textvariable=self.build_plate_height, width=10,
+                   command=lambda: self.update_3d_view()).grid(row=2, column=1, pady=2)
+        
         ttk.Label(buildplate_frame, text="(Viewport shows static build area)",
-                 font=('Arial', 8, 'italic')).grid(row=2, column=0, columnspan=2, pady=(5, 0))
+                 font=('Arial', 8, 'italic')).grid(row=3, column=0, columnspan=2, pady=(5, 0))
         
         # View Orientation
         view_frame = ttk.LabelFrame(parent, text="View Orientation", padding=10)
@@ -445,62 +456,33 @@ class Damascus3DGUI:
         Create right viewport panel.
         
         Contains:
-        - 3D viewport (top 60%)
-        - Cross-section preview (bottom 40%)
+        - 3D viewport (full height) - VisPy OpenGL viewer
         """
-        # 3D Viewport (top)
-        viewport_frame = ttk.LabelFrame(parent, text="3D Billet View", padding=5)
-        viewport_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
+        # 3D Viewport - VisPy (full panel)
+        viewport_frame = ttk.LabelFrame(parent, text="3D Billet View (VisPy OpenGL)", padding=5)
+        viewport_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Create matplotlib figure for 3D view
-        self.fig_3d = Figure(figsize=(8, 6), dpi=100, facecolor=self.colors['panel_bg'])
-        self.ax_3d = self.fig_3d.add_subplot(111, projection='3d')
-        self.ax_3d.set_facecolor(self.colors['panel_bg'])
+        # Create VisPy 3D viewer
+        # Note: VisPy will create its own native widget that embeds in Tkinter
+        self.vispy_viewer = DamascusVispyViewer(parent=viewport_frame)
         
-        # Embed in Tkinter
-        self.canvas_3d = FigureCanvasTkAgg(self.fig_3d, master=viewport_frame)
-        self.canvas_3d.draw()
-        self.canvas_3d.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        # Get the native widget and pack it
+        vispy_widget = self.vispy_viewer.get_native_widget()
+        vispy_widget.pack(fill=tk.BOTH, expand=True)
         
-        # Add mouse wheel zoom support
-        self.zoom_scale = tk.DoubleVar(value=1.0)  # Track zoom level
-        self.canvas_3d.mpl_connect('scroll_event', self.on_mouse_scroll)
-        logger.debug("Mouse wheel zoom enabled")
+        logger.info("VisPy 3D viewer created and embedded in Tkinter")
+        logger.info("  - Left drag: Rotate")
+        logger.info("  - Right drag: Pan")
+        logger.info("  - Mouse wheel: Zoom (proper zoom behavior!)")
         
-        # Add matplotlib toolbar
-        toolbar_frame = ttk.Frame(viewport_frame)
-        toolbar_frame.pack(fill=tk.X)
-        toolbar = NavigationToolbar2Tk(self.canvas_3d, toolbar_frame)
-        toolbar.update()
-        
-        # Cross-section preview (bottom)
-        xsection_frame = ttk.LabelFrame(parent, text="Cross-Section Preview", padding=5)
-        xsection_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Z-position slider
-        slider_frame = ttk.Frame(xsection_frame)
-        slider_frame.pack(fill=tk.X, pady=(0, 5))
-        
-        ttk.Label(slider_frame, text="Z Position:").pack(side=tk.LEFT, padx=5)
+        # Note: Cross-section preview removed to maximize 3D viewport space
+        # Z-position variables kept for potential future use
         self.z_position = tk.DoubleVar(value=0.0)
-        self.z_slider = ttk.Scale(slider_frame, from_=-50, to=50, 
-                                 variable=self.z_position, orient=tk.HORIZONTAL,
-                                 command=self.on_z_position_change)
-        self.z_slider.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.z_slider = None
+        self.z_label = None
+        self.xsection_canvas = None
         
-        self.z_label = ttk.Label(slider_frame, text="0.0 mm")
-        self.z_label.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Button(slider_frame, text="Update", 
-                  command=self.update_cross_section).pack(side=tk.LEFT, padx=5)
-        
-        # Canvas for cross-section image
-        self.xsection_canvas = tk.Canvas(xsection_frame, bg='#2d2d2d', 
-                                        highlightthickness=1, 
-                                        highlightbackground=self.colors['border'])
-        self.xsection_canvas.pack(fill=tk.BOTH, expand=True)
-        
-        logger.debug("Right panel created with 3D viewport and cross-section preview")
+        logger.debug("Right panel created with full-height 3D viewport")
     
     def setup_status_bar(self):
         """Create status bar at bottom."""
@@ -1151,8 +1133,7 @@ class Damascus3DGUI:
         self.update_cross_section()
         self.update_status()
         
-        # Force canvas redraw
-        self.canvas_3d.draw_idle()
+        # Update GUI
         self.root.update_idletasks()
         self.root.update()
         
@@ -1497,8 +1478,7 @@ class Damascus3DGUI:
         self.update_cross_section()
         self.update_status()
         
-        # Force canvas redraw
-        self.canvas_3d.draw_idle()
+        # Update GUI
         self.root.update_idletasks()
         self.root.update()
         
@@ -1518,135 +1498,41 @@ class Damascus3DGUI:
     # ========================================================================
     
     def update_3d_view(self):
-        """Update the 3D viewport with current billet state."""
+        """Update the 3D viewport with current billet state using VisPy."""
         if self.billet is None:
             return
         
-        logger.debug(f"Updating 3D viewport - Billet: {self.billet.width:.1f}W x {self.billet.length:.1f}L, {len(self.billet.layers)} layers")
-        self.status_text.set("Rendering 3D view...")
+        if self.vispy_viewer is None:
+            logger.warning("VisPy viewer not initialized")
+            return
+        
+        logger.debug(f"Updating VisPy 3D viewport - Billet: {self.billet.width:.1f}W x {self.billet.length:.1f}L, {len(self.billet.layers)} layers")
+        self.status_text.set("Rendering 3D view with VisPy...")
         self.root.update()
         
-        # Clear previous plot
-        self.ax_3d.clear()
-        
-        # Render each layer
-        total_vertices = 0
-        total_triangles = 0
-        for layer_idx, layer in enumerate(self.billet.layers):
-            vertices = np.asarray(layer.mesh.vertices)
-            triangles = np.asarray(layer.mesh.triangles)
-            
-            total_vertices += len(vertices)
-            total_triangles += len(triangles)
-            
-            # Debug first and last layer bounds
-            if layer_idx == 0 or layer_idx == len(self.billet.layers) - 1:
-                v_min = vertices.min(axis=0)
-                v_max = vertices.max(axis=0)
-                logger.debug(f"  Layer {layer_idx} bounds: X[{v_min[0]:.1f},{v_max[0]:.1f}] Y[{v_min[1]:.1f},{v_max[1]:.1f}] Z[{v_min[2]:.1f},{v_max[2]:.1f}]")
-            
-            # Create faces from triangles
-            faces = vertices[triangles]
-            
-            # Create 3D polygon collection
-            poly_collection = Poly3DCollection(
-                faces,
-                facecolors=layer.color,
-                edgecolors='black',
-                linewidths=0.1,
-                alpha=0.95
-            )
-            self.ax_3d.add_collection3d(poly_collection)
-        
-        logger.debug(f"  Rendered {len(self.billet.layers)} layers, {total_vertices} vertices, {total_triangles} triangles")
-        
-        # Draw build plate boundary at Z=0
+        # Render billet using VisPy viewer
         plate_w = self.build_plate_width.get()
         plate_l = self.build_plate_length.get()
         
-        # Build plate outline (rectangle on Z=0 plane)
-        plate_corners = np.array([
-            [-plate_w/2, -plate_l/2, 0],
-            [ plate_w/2, -plate_l/2, 0],
-            [ plate_w/2,  plate_l/2, 0],
-            [-plate_w/2,  plate_l/2, 0],
-            [-plate_w/2, -plate_l/2, 0]  # Close the rectangle
-        ])
+        self.vispy_viewer.render_billet(
+            self.billet,
+            build_plate_width=plate_w,
+            build_plate_length=plate_l
+        )
         
-        self.ax_3d.plot(plate_corners[:, 0], plate_corners[:, 1], plate_corners[:, 2],
-                       color='#888888', linewidth=2, linestyle='--', alpha=0.6, label='Build Plate')
+        # Apply view angles if needed
+        elevation = self.view_elevation.get()
+        azimuth = self.view_azimuth.get()
+        self.vispy_viewer.set_view_angles(elevation, azimuth)
         
-        logger.debug(f"  Drew build plate boundary: {plate_w}x{plate_l}mm")
-        
-        # Set axis labels and limits
-        # NEW COORDINATE SYSTEM: X=width, Y=length, Z=height (layers stack in Z)
-        self.ax_3d.set_xlabel('X (width) [mm]', fontsize=8, color=self.colors['fg'])
-        self.ax_3d.set_ylabel('Y (length) [mm]', fontsize=8, color=self.colors['fg'])
-        self.ax_3d.set_zlabel('Z (height) [mm]', fontsize=8, color=self.colors['fg'])
-        
-        # Use STATIC BUILD PLATE dimensions for viewport
-        # This provides a consistent reference frame regardless of billet size
-        plate_width = self.build_plate_width.get()
-        plate_length = self.build_plate_length.get()
-        height = sum(l.thickness for l in self.billet.layers)
-        
-        logger.debug(f"  Billet dimensions: W={self.billet.width:.1f}, L={self.billet.length:.1f}, H={height:.1f}")
-        logger.debug(f"  Build plate: W={plate_width:.1f}, L={plate_length:.1f}")
-        
-        # Viewport shows the build plate area with slight padding
-        padding_factor = 1.1  # Only 10% padding since build plate is already spacious
-        x_range = plate_width * padding_factor
-        y_range = plate_length * padding_factor
-        # Z range based on max of billet height or build plate dimensions for perspective
-        z_range = max(height * padding_factor, plate_width * 0.3)  # At least 30% of plate width for good view
-        
-        # Apply current zoom level
-        zoom = self.zoom_scale.get()
-        if zoom > 0:
-            x_range /= zoom
-            y_range /= zoom
-            z_range /= zoom
-        
-        logger.debug(f"  Viewport ranges (build plate, zoom={zoom:.2f}): X={x_range:.1f}, Y={y_range:.1f}, Z={z_range:.1f}")
-        
-        # Set limits - billet centered at origin in X and Y, Z starts at 0 (build plate)
-        self.ax_3d.set_xlim(-x_range/2, x_range/2)
-        self.ax_3d.set_ylim(-y_range/2, y_range/2)
-        self.ax_3d.set_zlim(0, z_range)
-        
-        logger.debug(f"  Axis limits: X=[{-x_range/2:.1f},{x_range/2:.1f}] Y=[{-y_range/2:.1f},{y_range/2:.1f}] Z=[0,{z_range:.1f}]")
-        
-        # Set view angle from controls
-        self.ax_3d.view_init(elev=self.view_elevation.get(), azim=self.view_azimuth.get())
-        
-        # CRITICAL: Set equal aspect ratio to prevent distortion
-        # Use the ACTUAL billet dimensions for aspect ratio, not the viewport ranges
-        # This ensures a 20x300x20 bar looks correctly proportioned
-        try:
-            aspect_w = self.billet.width
-            aspect_l = self.billet.length 
-            aspect_h = height
-            self.ax_3d.set_box_aspect([aspect_w, aspect_l, aspect_h])
-            logger.debug(f"  Set box aspect ratio (billet proportions): [{aspect_w:.1f}, {aspect_l:.1f}, {aspect_h:.1f}]")
-        except AttributeError:
-            # Older matplotlib versions don't have set_box_aspect
-            logger.warning("  set_box_aspect not available - aspect ratio may be distorted")
-            pass
-        
-        # Style axes
-        self.ax_3d.tick_params(colors=self.colors['fg'], labelsize=7)
-        self.ax_3d.grid(True, alpha=0.3)
-        
-        # Redraw
-        logger.debug(f"  Drawing canvas...")
-        self.canvas_3d.draw()
-        
-        self.status_text.set("3D view updated")
-        logger.debug(f"3D viewport rendered (elev={self.view_elevation.get():.1f}°, azim={self.view_azimuth.get():.1f}°)")
+        self.status_text.set("3D view updated (VisPy)")
+        logger.debug(f"VisPy viewport rendered with {len(self.billet.layers)} layers")
     
     def update_cross_section(self):
         """Update the cross-section preview."""
-        if self.billet is None:
+        # Cross-section preview was removed from UI - this function is now a no-op
+        # but kept for compatibility with existing code that calls it
+        if self.billet is None or self.xsection_canvas is None:
             return
         
         logger.debug(f"Updating cross-section at Z={self.z_position.get():.1f}mm")
@@ -1689,46 +1575,8 @@ class Damascus3DGUI:
     
     def on_z_position_change(self, value):
         """Called when Z-position slider changes."""
-        self.z_label.config(text=f"{float(value):.1f} mm")
-    
-    def on_mouse_scroll(self, event):
-        """
-        Handle mouse wheel scroll for zooming in/out of 3D viewport.
-        
-        Modifies the zoom scale and triggers a viewport update.
-        
-        Args:
-            event: matplotlib scroll event
-                event.button: 'up' or 'down'
-                event.step: +1 or -1
-        """
-        if self.billet is None:
-            return
-        
-        # Determine zoom direction
-        if event.button == 'up':
-            # Zoom in - increase zoom scale
-            zoom_delta = 1.15
-            direction = "in"
-        else:
-            # Zoom out - decrease zoom scale
-            zoom_delta = 0.85
-            direction = "out"
-        
-        # Update zoom scale
-        current_zoom = self.zoom_scale.get()
-        new_zoom = current_zoom * zoom_delta
-        
-        # Clamp zoom to reasonable range
-        new_zoom = max(0.1, min(new_zoom, 10.0))
-        
-        self.zoom_scale.set(new_zoom)
-        
-        logger.debug(f"Mouse scroll zoom {direction}: {current_zoom:.2f} -> {new_zoom:.2f}")
-        
-        # Update viewport with new zoom
-        self.update_3d_view()
-        self.status_text.set(f"Zoom: {new_zoom:.2f}x")
+        if self.z_label is not None:
+            self.z_label.config(text=f"{float(value):.1f} mm")
     
     def set_top_view(self):
         """Set view to top-down (looking at build plate)."""
@@ -1752,14 +1600,13 @@ class Damascus3DGUI:
         self.update_3d_view()
     
     def zoom_to_fit(self):
-        """Reset zoom to fit the entire billet in viewport."""
-        if self.billet is None:
+        """Reset camera to fit the entire billet in viewport."""
+        if self.billet is None or self.vispy_viewer is None:
             return
         
-        logger.info("Resetting zoom to fit billet")
-        self.zoom_scale.set(1.0)
-        self.update_3d_view()
-        self.status_text.set("Zoom reset to fit")
+        logger.info("Resetting camera to fit billet")
+        self.vispy_viewer.reset_camera()
+        self.status_text.set("Camera reset to fit")
     
     # ========================================================================
     # EXPORT FUNCTIONS
