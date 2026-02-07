@@ -1,6 +1,6 @@
 # Damascus Pattern Simulator - Beta Release (3D Version)
-**Version**: 2.0.3-beta  
-**Release Date**: 2026-02-04  
+**Version**: 2.1.1-beta  
+**Release Date**: 2026-02-07  
 **Status**: 🚧 **BETA - UNDER ACTIVE DEVELOPMENT** 🚧
 
 ---
@@ -39,10 +39,13 @@
 
 This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D physics and mesh-based simulation. The old 2D pixel-based simulator has been deprecated in favor of this more accurate and powerful 3D engine.
 
-### Recent Updates (2026-02-05)
+### Recent Updates (2026-02-07)
 - Added live debug console streaming in `damascus_3d_gui.py` via `TkTextLogHandler`
 - Added API call instrumentation logs in `damascus_3d_simulator.py` (callable, source file, definition line)
-- Added project folder organization for clarity: `Notes/`, `Research/`, `data/`, `Staging/`, `testing/`, `Installation_and_Launch/`
+- Integrated VisPy OpenGL rendering into the GUI via `vispy_3d_viewer.py`
+- Updated the GUI 3D viewport to use VisPy camera controls (rotate/pan/zoom) with proper zoom behavior
+- Removed live cross-section preview panel to prioritize a full-height 3D viewport (PNG cross-section export remains available)
+- Added project folder organization for clarity: `Research/`, `data/`, `Staging/`, `testing/`, `Installation_and_Launch/`
 - Added Windows install/run support files (`Installation_and_Launch/install_windows.bat`, `run_windows.bat`, `Installation_and_Launch/INSTALL_WINDOWS.md`, `Installation_and_Launch/requirements.txt`)
 - Updated Windows installer to enforce Python 3.12 for Open3D compatibility
 - Refactored runtime file access for the new folder layout:
@@ -51,6 +54,7 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
   - Custom steel records now persist to `data/custom_steels.json`
   - Windows launcher/installer scripts now resolve paths from their script locations
   - `Installation_and_Launch/damascus_simulator.spec` now packages resources from `data/` and `Staging/`
+  - Debug logs now write to `logs/damascus_3d_debug_*.log`
 - Consolidated beta documentation into the root `README.md` so release notes stay current
 
 ### Major Features
@@ -62,11 +66,11 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
 - Multiple heats simulation for realistic forging
 
 #### 🎨 **Interactive 3D Visualization**
-- Real-time 3D viewport with matplotlib
+- Real-time 3D viewport with VisPy (OpenGL)
 - Adjustable camera angles (elevation, azimuth)
-- Mouse wheel zoom support
+- Smooth rotate/pan/zoom interaction
 - Quick view presets (top, front, isometric)
-- Cross-section preview at any Z height
+- Full-height viewport for better 3D inspection
 
 #### 🏭 **Static Build Plate System** (NEW!)
 - Configurable workspace dimensions (default 400×400mm)
@@ -86,7 +90,7 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
 - **Feather Damascus**: Wedge deformation with material splitting (⚠️ IN DEVELOPMENT)
 - **Twist/Ladder Damascus**: Torsional deformation around length axis (⚠️ NEEDS TESTING)
 - **Raindrop Damascus**: Drill holes with material flow simulation (⚠️ NEEDS TESTING)
-- Real-time cross-section preview showing pattern
+- Cross-section export available via PNG output
 
 ---
 
@@ -182,7 +186,7 @@ When a billet exceeds the build plate, you get three choices:
 ## 🔧 Technical Details
 
 ### Architecture
-- **GUI**: Tkinter-based with matplotlib 3D viewport
+- **GUI**: Tkinter-based with embedded VisPy 3D viewport
 - **3D Engine**: Open3D for mesh operations
 - **Physics**: Volume-conserving transformations
 - **Coordinate System**: X=width, Y=length, Z=height (layers stack in Z)
@@ -206,13 +210,14 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 ### File Structure
 - `damascus_3d_gui.py` - Main GUI application (1,700+ lines)
 - `damascus_3d_simulator.py` - 3D physics engine (1,400+ lines)
+- `vispy_3d_viewer.py` - VisPy OpenGL 3D viewer integration
 - `3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
 - `Research/` - Pattern research and deformation math references
 - `data/` - Steel data files and lookup module
 - `Staging/` - Prepared files for integration
 - `testing/` - PoC/test scripts
 - `Installation_and_Launch/` - Windows installation assets and packaging config
-- **Old/Deprecated**: `damascus_simulator.py` - Old 2D version (DO NOT USE)
+- `logs/` - Runtime debug logs (`damascus_3d_debug_*.log`)
 
 ---
 
@@ -233,13 +238,13 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 - Large billets (>100 layers) may render slowly
 - Forging with many heats (>10) takes longer but produces smoother results
 - Cross-section extraction is fast (<0.1s typically)
-- First render may take a few seconds to initialize Open3D
+- First render may take a few seconds to initialize Open3D/VisPy
 
 ### Stability
 - **Generally stable** for billet creation and forging operations
 - **May crash** during experimental pattern operations
 - **Save your work frequently** using export functions
-- Check debug logs (`damascus_3d_debug_*.log`) if crashes occur
+- Check debug logs (`logs/damascus_3d_debug_*.log`) if crashes occur
 
 ---
 
@@ -299,9 +304,9 @@ Debug logs are automatically created by the simulator:
 ## ⚠️ Deprecation Notice
 
 ### Old 2D Simulator
-The original 2D pixel-based simulator (`damascus_simulator.py`) is **DEPRECATED** and should **NOT BE USED**.
+The original 2D pixel-based simulator approach is **DEPRECATED** and should **NOT BE USED**.
 
-**Status**: Kept in repository for reference only  
+**Status**: Legacy approach retained in project history only  
 **Maintenance**: None - no bug fixes or updates  
 **Recommended**: Use 3D version (`damascus_3d_gui.py`) instead  
 
@@ -319,7 +324,7 @@ This is a personal project, but feedback is appreciated!
 
 ### Reporting Bugs 🐛
 1. **Check if it's a known issue** (see section above)
-2. Check debug logs: `damascus_3d_debug_*.log`
+2. Check debug logs: `logs/damascus_3d_debug_*.log`
 3. Note the exact steps to reproduce
 4. Include screenshots if applicable
 5. Report via GitHub issues with tag `[BETA-BUG]`
@@ -347,7 +352,8 @@ Beta testers wanted! If you're willing to test experimental features:
 ## 🙏 Acknowledgments
 
 - **Open3D**: 3D mesh processing library
-- **matplotlib**: 3D visualization
+- **VisPy**: OpenGL 3D viewport rendering in Tkinter
+- **matplotlib**: optional plotting utilities
 - **Damascus steel community**: Inspiration and reference patterns
 - **Beta testers**: Thank you for your patience!
 
@@ -358,9 +364,8 @@ Beta testers wanted! If you're willing to test experimental features:
 For questions or issues:
 1. **READ THIS README FIRST** - especially the "Known Issues" section
 2. Check documentation in `3D_DEVELOPMENT_NOTES.md`
-3. Review session notes in `Notes/` for recent changes
-4. Check debug logs for error details (`damascus_3d_debug_*.log`)
-5. Submit GitHub issue with:
+3. Check debug logs for error details (`logs/damascus_3d_debug_*.log`)
+4. Submit GitHub issue with:
    - `[BETA]` tag
    - Clear description
    - Steps to reproduce
@@ -403,6 +408,6 @@ New to Damascus steel patterns? Check out:
 
 ---
 
-*Last Updated: 2026-02-05*  
-*Version: 2.1.0-beta*  
+*Last Updated: 2026-02-07*  
+*Version: 2.1.1-beta*  
 *Status: Active Development*
