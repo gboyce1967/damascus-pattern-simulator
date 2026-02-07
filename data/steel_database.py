@@ -8,9 +8,13 @@ Supports both built-in steels and user-defined custom steels.
 """
 
 import json
-import os
 from datetime import datetime
 from typing import Dict, Any, Optional
+from pathlib import Path
+
+
+MODULE_DIR = Path(__file__).resolve().parent
+DEFAULT_CUSTOM_STEELS_PATH = MODULE_DIR / "custom_steels.json"
 
 
 class Steel:
@@ -127,14 +131,20 @@ class SteelDatabase:
     Manages built-in and custom steels.
     """
     
-    def __init__(self, custom_steels_file='custom_steels.json'):
+    def __init__(self, custom_steels_file: Optional[str] = None):
         """
         Initialize database with built-in steels and load custom steels.
         
         Args:
-            custom_steels_file: Path to JSON file containing custom steels
+            custom_steels_file: Optional custom JSON path. Defaults to data/custom_steels.json.
         """
-        self.custom_steels_file = custom_steels_file
+        if custom_steels_file:
+            custom_path = Path(custom_steels_file)
+            if not custom_path.is_absolute():
+                custom_path = MODULE_DIR / custom_path
+            self.custom_steels_file = custom_path
+        else:
+            self.custom_steels_file = DEFAULT_CUSTOM_STEELS_PATH
         self.steels: Dict[str, Steel] = {}
         
         # Load built-in steels
@@ -297,16 +307,16 @@ class SteelDatabase:
     
     def _load_custom_steels(self):
         """Load custom steels from JSON file."""
-        if os.path.exists(self.custom_steels_file):
+        if self.custom_steels_file.exists():
             try:
-                with open(self.custom_steels_file, 'r') as f:
+                with self.custom_steels_file.open('r', encoding='utf-8') as f:
                     custom_data = json.load(f)
                 
                 for key, data in custom_data.items():
                     data['is_custom'] = True
                     self.steels[key] = Steel(data)
                 
-                print(f"Loaded {len(custom_data)} custom steels")
+                print(f"Loaded {len(custom_data)} custom steels from {self.custom_steels_file}")
             except Exception as e:
                 print(f"Error loading custom steels: {e}")
     
@@ -318,10 +328,11 @@ class SteelDatabase:
             if steel.is_custom:
                 custom_data[key] = steel.to_dict()
         
-        with open(self.custom_steels_file, 'w') as f:
+        self.custom_steels_file.parent.mkdir(parents=True, exist_ok=True)
+        with self.custom_steels_file.open('w', encoding='utf-8') as f:
             json.dump(custom_data, f, indent=2)
         
-        print(f"Saved {len(custom_data)} custom steels")
+        print(f"Saved {len(custom_data)} custom steels to {self.custom_steels_file}")
     
     def add_custom_steel(self, key: str, data: Dict[str, Any]) -> Steel:
         """

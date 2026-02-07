@@ -4,9 +4,19 @@ Test script for custom steel database functionality.
 Tests adding, loading, and exporting custom steels.
 """
 
-from steel_database import Steel, get_database
-import os
 import json
+import sys
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from data.steel_database import Steel, get_database
+
+
+CUSTOM_STEELS_PATH = PROJECT_ROOT / "data" / "custom_steels.json"
 
 def test_custom_steel_creation():
     """Test creating a custom steel."""
@@ -73,11 +83,11 @@ def test_database_operations():
     custom_count = len([s for s in all_steels.values() if s.is_custom])
     print(f"✓ Database now has {custom_count} custom steel(s)")
     
-    # Check if custom_steels.json was created
-    if os.path.exists('custom_steels.json'):
-        with open('custom_steels.json', 'r') as f:
+    # Check if data/custom_steels.json was created
+    if CUSTOM_STEELS_PATH.exists():
+        with CUSTOM_STEELS_PATH.open('r', encoding='utf-8') as f:
             data = json.load(f)
-            print(f"✓ custom_steels.json created with {len(data)} steel(s)")
+            print(f"✓ {CUSTOM_STEELS_PATH} created with {len(data)} steel(s)")
     
     print()
     return db
@@ -137,9 +147,9 @@ def cleanup():
     print("CLEANUP")
     print("=" * 60)
     
-    if os.path.exists('custom_steels.json'):
-        os.remove('custom_steels.json')
-        print("✓ Removed custom_steels.json")
+    if CUSTOM_STEELS_PATH.exists():
+        CUSTOM_STEELS_PATH.unlink()
+        print(f"✓ Removed {CUSTOM_STEELS_PATH}")
     else:
         print("✓ No cleanup needed")
     print()

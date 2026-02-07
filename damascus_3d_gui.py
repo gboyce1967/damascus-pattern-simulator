@@ -18,7 +18,7 @@ FEATURES:
 UI LAYOUT:
 ----------
 ┌─────────────────────────────────────────────────────┐
-│ Menu Bar (File, View, Help)                        │
+│ Menu Bar (File, View, Help)                         │
 ├──────────────────┬──────────────────────────────────┤
 │                  │                                  │
 │  Pattern Select  │      3D Viewport                 │
@@ -68,16 +68,51 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
 from datetime import datetime
 import json
+from pathlib import Path
 
 # Import our 3D Damascus engine
-from damascus_3d_simulator import Damascus3DBillet, DamascusLayer, logger
+from damascus_3d_simulator import Damascus3DBillet, DamascusLayer, logger, LOGS_DIR as SIM_LOGS_DIR
 import open3d as o3d
 
 # Import VisPy 3D viewer (replaces matplotlib 3D)
 from vispy_3d_viewer import DamascusVispyViewer
 
 # Import steel database
-from steel_database import get_database
+from data.steel_database import get_database
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+DATA_DIR = PROJECT_ROOT / "data"
+FORGING_LOSSES_PATH = DATA_DIR / "steel-losses-during-forging.txt"
+PLASTICITY_GUIDE_PATH = DATA_DIR / "steel-plasticity.txt"
+
+
+class TkTextLogHandler(logging.Handler):
+    """Logging handler that streams log messages into a Tkinter text widget."""
+
+    def __init__(self, root, text_widget):
+        super().__init__()
+        self.root = root
+        self.text_widget = text_widget
+        self.setFormatter(logging.Formatter(
+            '%(asctime)s | %(levelname)-8s | %(message)s',
+            datefmt='%H:%M:%S'
+        ))
+
+    def emit(self, record):
+        try:
+            message = self.format(record)
+            self.root.after(0, self._append, message)
+        except Exception:
+            self.handleError(record)
+
+    def _append(self, message):
+        if not self.text_widget or not self.text_widget.winfo_exists():
+            return
+
+        self.text_widget.config(state=tk.NORMAL)
+        self.text_widget.insert(tk.END, message + "\n")
+        self.text_widget.see(tk.END)
+        self.text_widget.config(state=tk.DISABLED)
 
 
 class Damascus3DGUI:
@@ -141,6 +176,11 @@ class Damascus3DGUI:
         self.build_plate_width = tk.DoubleVar(value=400.0)  # mm (X-axis)
         self.build_plate_length = tk.DoubleVar(value=400.0)  # mm (Y-axis)
         self.build_plate_height = tk.DoubleVar(value=200.0)  # mm (Z-axis - max viewing height)
+
+        # Live debug console state
+        self.debug_console_window = None
+        self.debug_console_text = None
+        self.debug_console_handler = None
         
         logger.info("="*70)
         logger.info("Damascus 3D GUI Application Starting")
@@ -1688,35 +1728,67 @@ class Damascus3DGUI:
             self.stats_text.set(f"Layers: {layer_count} | Operations: {op_count}")
             logger.debug(f"Status updated: {layer_count} layers, {op_count} ops, {self.billet.width:.1f}x{self.billet.length:.1f}x{height:.1f}mm")
     
+    def _remove_debug_console_handler(self):
+        """Detach the live console log handler from the shared logger."""
+        if self.debug_console_handler is not None:
+            logger.removeHandler(self.debug_console_handler)
+            self.debug_console_handler.close()
+            self.debug_console_handler = None
+
     def show_debug_console(self):
-        """Show debug console window with recent log entries."""
+        """Show a live debug console window that streams logger output."""
+        if self.debug_console_window and self.debug_console_window.winfo_exists():
+            self.debug_console_window.lift()
+            self.debug_console_window.focus_force()
+            logger.info("Debug console already open")
+            return
+
         logger.info("Opening debug console window")
         console = tk.Toplevel(self.root)
-        console.title("Debug Console")
-        console.geometry("900x700")
-        
-        text_area = scrolledtext.ScrolledText(console, wrap=tk.WORD, 
-                                              bg='#1e1e1e', fg='#00ff00',
-                                              font=('Courier', 9))
+        console.title("Debug Console (Live)")
+        console.geometry("1000x700")
+        self.debug_console_window = console
+
+        text_area = scrolledtext.ScrolledText(
+            console,
+            wrap=tk.WORD,
+            bg='#1e1e1e',
+            fg='#00ff00',
+            font=('Courier', 9)
+        )
         text_area.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Load recent log file
-        import glob
-        log_files = sorted(glob.glob('damascus_3d_debug_*.log'), reverse=True)
+        self.debug_console_text = text_area
+
+        # Preload the latest log file so context is visible immediately.
+        SIM_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        log_files = sorted(SIM_LOGS_DIR.glob('damascus_3d_debug_*.log'), reverse=True)
         logger.debug(f"Found {len(log_files)} debug log files")
-        
         if log_files:
             logger.debug(f"Loading most recent log: {log_files[0]}")
-            with open(log_files[0], 'r') as f:
-                log_content = f.read()
-                text_area.insert(tk.END, log_content)
-                logger.debug(f"Loaded {len(log_content)} characters from log")
+            with open(log_files[0], 'r', encoding='utf-8', errors='replace') as f:
+                # Keep startup fast by loading only the recent tail.
+                tail_lines = f.readlines()[-3000:]
+                text_area.insert(tk.END, ''.join(tail_lines))
             text_area.see(tk.END)
         else:
-            logger.warning("No debug log files found")
             text_area.insert(tk.END, "No debug log available yet.\n")
-        
+
         text_area.config(state=tk.DISABLED)
+
+        # Attach a live log stream for everything (DEBUG+).
+        self._remove_debug_console_handler()
+        self.debug_console_handler = TkTextLogHandler(self.root, text_area)
+        self.debug_console_handler.setLevel(logging.DEBUG)
+        logger.addHandler(self.debug_console_handler)
+
+        def on_console_close():
+            self._remove_debug_console_handler()
+            self.debug_console_window = None
+            self.debug_console_text = None
+            console.destroy()
+            logger.info("Debug console window closed")
+
+        console.protocol("WM_DELETE_WINDOW", on_console_close)
     
     def show_billet_stats(self):
         """Show detailed billet statistics."""
@@ -2337,7 +2409,7 @@ TIPS:
             
             # Create Steel object
             try:
-                from steel_database import Steel
+                from data.steel_database import Steel
                 
                 # Build steel data dictionary
                 steel_data = {
@@ -2424,16 +2496,16 @@ TIPS:
     
     def show_forging_losses(self):
         """
-        Show forging losses reference from steel-losses-during-forging.txt.
+        Show forging losses reference from data/steel-losses-during-forging.txt.
         """
         logger.info("Opening Forging Losses Reference")
         
         try:
-            with open('steel-losses-during-forging.txt', 'r') as f:
+            with open(FORGING_LOSSES_PATH, 'r', encoding='utf-8', errors='replace') as f:
                 content = f.read()
         except FileNotFoundError:
             messagebox.showerror("File Not Found", 
-                "steel-losses-during-forging.txt not found")
+                f"Reference file not found:\n{FORGING_LOSSES_PATH}")
             return
         
         # Create window
@@ -2457,16 +2529,16 @@ TIPS:
     
     def show_plasticity_guide(self):
         """
-        Show steel plasticity guide from steel-plasticity.txt.
+        Show steel plasticity guide from data/steel-plasticity.txt.
         """
         logger.info("Opening Steel Plasticity Guide")
         
         try:
-            with open('steel-plasticity.txt', 'r') as f:
+            with open(PLASTICITY_GUIDE_PATH, 'r', encoding='utf-8', errors='replace') as f:
                 content = f.read()
         except FileNotFoundError:
             messagebox.showerror("File Not Found", 
-                "steel-plasticity.txt not found")
+                f"Reference file not found:\n{PLASTICITY_GUIDE_PATH}")
             return
         
         # Create window
@@ -2496,6 +2568,7 @@ TIPS:
         """Start the GUI application."""
         logger.info("Starting GUI main loop")
         self.root.mainloop()
+        self._remove_debug_console_handler()
         logger.info("GUI application closed")
 
 
@@ -2516,6 +2589,7 @@ def main():
         # Handle window close
         def on_closing():
             if messagebox.askokcancel("Quit", "Exit Damascus 3D Simulator?"):
+                app._remove_debug_console_handler()
                 logger.info("User closed application")
                 root.destroy()
         

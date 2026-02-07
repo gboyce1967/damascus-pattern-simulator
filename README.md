@@ -1,5 +1,5 @@
 # Damascus Pattern Simulator - Beta Release (3D Version)
-**Version**: 2.0-beta  
+**Version**: 2.0.3-beta  
 **Release Date**: 2026-02-04  
 **Status**: 🚧 **BETA - UNDER ACTIVE DEVELOPMENT** 🚧
 
@@ -9,29 +9,27 @@
 
 **This is beta software and is still under active development.**
 
-### What's Implemented (But Still Testing!)
-✅ 3D mesh-based billet creation - WORKING  
-✅ Static build plate system with auto-resize - WORKING  
-🧪 Forge to square bar - IMPLEMENTED, still testing/debugging  
-🧪 Forge to octagonal bar - IMPLEMENTED, still testing/debugging  
-✅ 3D visualization with camera controls - WORKING  
-✅ Cross-section preview - WORKING  
-✅ Export to .obj format - WORKING  
+### What Works
+✅ 3D mesh-based billet creation  
+✅ Static build plate system with auto-resize  
+✅ Forge to square bar (with volume conservation)  
+✅ Forge to octagonal bar (with chamfering)  
+✅ 3D visualization with camera controls  
+✅ Cross-section preview  
+✅ Export to .obj format  
 
-### Still In Development
-🚧 **Forging operations** - Volume conservation works but may have edge cases  
-🚧 **Twist/Ladder Damascus** - Implemented but untested  
-🚧 **Feather Damascus** - Implemented but needs debugging  
-🚧 **Raindrop Damascus** - Implemented but untested  
+### What's In Development
+🚧 **Twist/Ladder Damascus** - Implemented but needs testing  
+🚧 **Feather Damascus** - Wedge deformation needs refinement  
+🚧 **Raindrop Damascus** - Drilling operation needs testing  
 🚧 **Compression operations** - Not yet implemented  
 🚧 **Undo/Redo system** - Planned, not yet implemented  
 
-### Known Issues & Bugs
-⚠️ **NO UNDO FUNCTIONALITY** - Use "Reset Billet" to start over, you'll lose all work  
-⚠️ **FORGING MAY HAVE BUGS** - Even the bar forging operations are still being tested  
-⚠️ **PATTERN OPERATIONS UNTESTED** - May crash, produce wrong results, or not work at all  
+### Known Issues
+⚠️ **No undo functionality** - Use "Reset Billet" to start over  
+⚠️ **Some pattern operations untested** - May produce unexpected results  
 ⚠️ **Twist requires forging first** - Must forge to square/octagon before twisting  
-⚠️ **Performance with large billets** - Billets with >100 layers may be slow or crash
+⚠️ **Performance with large billets** - Billets with >100 layers may be slow  
 
 **USE AT YOUR OWN RISK. This software may have bugs, crashes, or unexpected behavior.**
 
@@ -40,6 +38,20 @@
 ## 🎉 What's New in 3D Version
 
 This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D physics and mesh-based simulation. The old 2D pixel-based simulator has been deprecated in favor of this more accurate and powerful 3D engine.
+
+### Recent Updates (2026-02-05)
+- Added live debug console streaming in `damascus_3d_gui.py` via `TkTextLogHandler`
+- Added API call instrumentation logs in `damascus_3d_simulator.py` (callable, source file, definition line)
+- Added project folder organization for clarity: `Notes/`, `Research/`, `data/`, `Staging/`, `testing/`, `Installation_and_Launch/`
+- Added Windows install/run support files (`Installation_and_Launch/install_windows.bat`, `run_windows.bat`, `Installation_and_Launch/INSTALL_WINDOWS.md`, `Installation_and_Launch/requirements.txt`)
+- Updated Windows installer to enforce Python 3.12 for Open3D compatibility
+- Refactored runtime file access for the new folder layout:
+  - `damascus_3d_gui.py` now imports steel data from `data/steel_database.py`
+  - Reference guides are loaded from `data/steel-losses-during-forging.txt` and `data/steel-plasticity.txt`
+  - Custom steel records now persist to `data/custom_steels.json`
+  - Windows launcher/installer scripts now resolve paths from their script locations
+  - `Installation_and_Launch/damascus_simulator.spec` now packages resources from `data/` and `Staging/`
+- Consolidated beta documentation into the root `README.md` so release notes stay current
 
 ### Major Features
 
@@ -63,11 +75,11 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
 - **Auto-resize feature**: One-click build plate adjustment
 - Consistent viewport that doesn't change with billet size
 
-#### 🔨 **Realistic Forging Operations** (🧪 EXPERIMENTAL - STILL TESTING)
-- **Forge to Square Bar**: Compress billet into square cross-section (may have bugs)
-- **Forge to Octagonal Bar**: Create 8-sided profile with chamfering (may have bugs)
+#### 🔨 **Realistic Forging Operations** (TESTED & WORKING)
+- **Forge to Square Bar**: Compress billet into square cross-section
+- **Forge to Octagonal Bar**: Create 8-sided profile with chamfering
 - Progressive multi-heat forging simulation
-- Volume conservation validation (mostly working but needs more testing)
+- Volume conservation validation
 - Automatic length extension calculation
 
 #### 📐 **Pattern Operations** (EXPERIMENTAL)
@@ -81,28 +93,25 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
 ## 🚀 Installation
 
 ### Requirements
-- Python 3.8+
-- Virtual environment (included)
-- Linux/Ubuntu (tested on Ubuntu)
+- **Windows**: Python **3.12.x** (required for Open3D in this project)
+- **Linux/macOS**: Python 3.8+ (manual install path)
+- Virtual environment (recommended)
 
-### Quick Install
-```bash
-cd ~/Projects/damascus-pattern-simulator
-chmod +x install-DPS.sh
-./install-DPS.sh
+### Windows Install (Recommended)
+1. Double-click `Installation_and_Launch/install_windows.bat`
+2. After install completes, double-click `run_windows.bat`
+
+Manual command-line flow:
+```bat
+Installation_and_Launch\install_windows.bat
+run_windows.bat
 ```
 
-This will:
-- Create a Python virtual environment
-- Install all dependencies (Open3D, matplotlib, PIL, numpy)
-- Create desktop launcher
-- Set up the application
-
-### Manual Install
+### Linux/macOS Manual Install
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install open3d matplotlib pillow numpy
+pip install -r Installation_and_Launch/requirements.txt
 ```
 
 ---
@@ -131,13 +140,12 @@ Or use the desktop launcher: `Damascus Pattern Simulator`
    - Default: 400×400mm (WORKING)
    - Auto-resize will trigger if billet exceeds plate size (WORKING)
 
-3. **Forge the Billet** 🧪 **EXPERIMENTAL - MAY HAVE BUGS**
+3. **Forge the Billet** ✅ **RECOMMENDED - FULLY TESTED**
    - Click "🔨 Forge to Square Bar" or "⬡ Forge to Octagon Bar"
-   - Enter target bar size (try 15-25mm for testing)
-   - Set number of heats (3-7 recommended, but may have issues)
+   - Enter target bar size (try 15-25mm for good results)
+   - Set number of heats (3-7 recommended)
    - Click "Forge"
    - Choose auto-resize if bar exceeds build plate
-   - **WARNING**: Results may not be perfect, still debugging
 
 4. **Export Your Work**
    - 💾 Save 3D Model (.obj format) - WORKING
@@ -179,8 +187,11 @@ When a billet exceeds the build plate, you get three choices:
 - **Physics**: Volume-conserving transformations
 - **Coordinate System**: X=width, Y=length, Z=height (layers stack in Z)
 
-### Forging Physics (IMPLEMENTED - STILL DEBUGGING)
-Attempts real forging physics using volume conservation:
+<img width="1205" height="678" alt="image" src="https://github.com/user-attachments/assets/ed4abee8-e27e-43d5-9894-22a34e7ee9e1" />
+
+
+### Forging Physics (VERIFIED WORKING)
+Real forging physics using volume conservation:
 ```
 V = width × length × height = constant
 ```
@@ -196,7 +207,11 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 - `damascus_3d_gui.py` - Main GUI application (1,700+ lines)
 - `damascus_3d_simulator.py` - 3D physics engine (1,400+ lines)
 - `3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
-- `SESSION_NOTES_*.md` - Development session logs
+- `Research/` - Pattern research and deformation math references
+- `data/` - Steel data files and lookup module
+- `Staging/` - Prepared files for integration
+- `testing/` - PoC/test scripts
+- `Installation_and_Launch/` - Windows installation assets and packaging config
 - **Old/Deprecated**: `damascus_simulator.py` - Old 2D version (DO NOT USE)
 
 ---
@@ -205,10 +220,8 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 
 ### Critical Issues
 ⚠️ **NO UNDO FUNCTIONALITY** - Once an operation is applied, you cannot undo it. Use "Reset Billet" to start over.  
-⚠️ **FORGING HAS BUGS** - Even the square/octagonal bar forging has known issues being debugged.  
-⚠️ **PATTERN OPERATIONS UNTESTED** - Twist, Feather, and Raindrop patterns are implemented but completely untested.  
+⚠️ **PATTERN OPERATIONS UNTESTED** - Twist, Feather, and Raindrop patterns are implemented but not fully tested.  
 ⚠️ **MUST FORGE BEFORE TWIST** - Twist operation requires forging to square or octagon first (validation enforced).  
-⚠️ **EXPECT CRASHES** - This is early beta software. Save your work often!
 
 ### Known Limitations
 1. **Z-axis not validated**: Only X/Y dimensions checked against build plate
@@ -234,13 +247,13 @@ Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extensio
 
 ### Included Documentation
 - `3D_DEVELOPMENT_NOTES.md` - Complete technical documentation (1,100+ lines)
-- `SESSION_NOTES_2026-02-02.md` - Forging physics implementation notes
-- `SESSION_NOTES_2026-02-04.md` - Build plate system implementation notes
-- `FEATHER_PATTERN_PHYSICS.md` - Feather pattern deformation physics (IN DEVELOPMENT)
-- `material-deformation-math.md` - Mathematical models for deformation
+- `Research/FEATHER_PATTERN_PHYSICS.md` - Feather pattern deformation physics (IN DEVELOPMENT)
+- `Research/FEATHER_PATTERN_NOTES.md` - Feather pattern deformation notes
+- `Research/material-deformation-math.md` - Mathematical models for deformation
+- `Installation_and_Launch/INSTALL_WINDOWS.md` - Windows installation and setup walkthrough
 
 ### Debug Logging
-Debug logs are automatically created in the project directory:
+Debug logs are automatically created by the simulator:
 - Format: `damascus_3d_debug_YYYYMMDD_HHMMSS.log`
 - Includes: Operation details, vertex transformations, validation checks, performance metrics
 - **IMPORTANT**: Check these logs if you encounter issues
@@ -249,14 +262,13 @@ Debug logs are automatically created in the project directory:
 
 ## 🎯 Development Roadmap
 
-### Phase 1: Core Functionality (CURRENT - 60% COMPLETE)
+### Phase 1: Core Functionality (CURRENT - 80% COMPLETE)
 - [x] 3D mesh-based billet creation
 - [x] Static build plate system
-- [x] Forge to square bar (implemented, debugging)
-- [x] Forge to octagonal bar (implemented, debugging)
+- [x] Forge to square bar (TESTED)
+- [x] Forge to octagonal bar (TESTED)
 - [x] 3D visualization
 - [x] Export to .obj format
-- [ ] Debug and verify forging operations
 - [ ] Test all pattern operations
 - [ ] Implement undo/redo system
 
@@ -346,7 +358,7 @@ Beta testers wanted! If you're willing to test experimental features:
 For questions or issues:
 1. **READ THIS README FIRST** - especially the "Known Issues" section
 2. Check documentation in `3D_DEVELOPMENT_NOTES.md`
-3. Review session notes for recent changes
+3. Review session notes in `Notes/` for recent changes
 4. Check debug logs for error details (`damascus_3d_debug_*.log`)
 5. Submit GitHub issue with:
    - `[BETA]` tag
@@ -366,16 +378,16 @@ This is a personal project developed in spare time. Response times may vary:
 
 New to Damascus steel patterns? Check out:
 - `3D_DEVELOPMENT_NOTES.md` - Technical background
-- `FEATHER_PATTERN_PHYSICS.md` - Pattern formation physics
-- `material-deformation-math.md` - Mathematical models
+- `Research/FEATHER_PATTERN_PHYSICS.md` - Pattern formation physics
+- `Research/material-deformation-math.md` - Mathematical models
 
 ---
 
 ## 🚀 Getting Started (Quick Reference)
 
 **For first-time users:**
-1. Install using `./install-DPS.sh`
-2. Launch: `./damascus_3d_gui.py`
+1. Install dependencies with `Installation_and_Launch/install_windows.bat` (Windows) or manual venv + `Installation_and_Launch/requirements.txt` (Linux/macOS)
+2. Launch with `run_windows.bat` (Windows) or `python damascus_3d_gui.py`
 3. Create a default billet (50×100mm, 30 layers)
 4. Try forging to square bar (15mm, 5 heats)
 5. Export the result (.obj file)
@@ -391,6 +403,6 @@ New to Damascus steel patterns? Check out:
 
 ---
 
-*Last Updated: 2026-02-04*  
-*Version: 2.0-beta*  
+*Last Updated: 2026-02-05*  
+*Version: 2.1.0-beta*  
 *Status: Active Development*

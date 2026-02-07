@@ -41,23 +41,43 @@ from typing import List, Tuple, Optional, Dict, Any
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import functools
+import inspect
 import logging
+import os
 import sys
 from datetime import datetime
 import json
 from PIL import Image
+from pathlib import Path
 
 
 # ============================================================================
 # LOGGING CONFIGURATION
 # ============================================================================
 
+def _get_runtime_root() -> Path:
+    """
+    Return runtime root for generated artifacts.
+
+    - Source runs: project root (directory containing this file)
+    - Frozen runs: directory containing the executable
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
+RUNTIME_ROOT = _get_runtime_root()
+LOGS_DIR = RUNTIME_ROOT / "logs"
+
+
 def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
     """
     Configure comprehensive logging for debugging.
     
     Creates both console and file handlers with detailed formatting.
-    Log file is saved to damascus_3d_debug_<timestamp>.log
+    Log file is saved to logs/damascus_3d_debug_<timestamp>.log
     
     DEBUG CAPABILITY:
     ----------------
@@ -90,8 +110,9 @@ def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
     
     # File handler - DEBUG and above (everything for debugging)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_filename = f'damascus_3d_debug_{timestamp}.log'
-    file_handler = logging.FileHandler(log_filename)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_path = LOGS_DIR / f'damascus_3d_debug_{timestamp}.log'
+    file_handler = logging.FileHandler(log_path, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_format = logging.Formatter(
         '%(asctime)s | %(levelname)-8s | %(funcName)-25s | Line %(lineno)-4d | %(message)s',
@@ -105,7 +126,7 @@ def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
     logger.info("="*70)
     logger.info("Damascus 3D Simulator - Debug Session Started")
     logger.info(f"Timestamp: {datetime.now().isoformat()}")
-    logger.info(f"Log file: {log_filename}")
+    logger.info(f"Log file: {log_path}")
     logger.info("="*70)
     
     return logger
@@ -113,6 +134,42 @@ def setup_logging(debug_level: str = "DEBUG") -> logging.Logger:
 
 # Initialize global logger
 logger = setup_logging("DEBUG")
+
+
+# ============================================================================
+# API CALL INSTRUMENTATION
+# ============================================================================
+
+def _resolve_source_location(func) -> Tuple[str, int]:
+    """Return source filename and definition start line for a callable."""
+    source_path = inspect.getsourcefile(func)
+    source_file = os.path.basename(source_path) if source_path else "<unknown>"
+    try:
+        source_line = inspect.getsourcelines(func)[1]
+    except (OSError, TypeError):
+        source_line = -1
+    return source_file, source_line
+
+
+def _api_call_wrapper(func):
+    """Wrap callable to emit a structured API call log on each invocation."""
+    if getattr(func, "_damascus_api_wrapped", False):
+        return func
+
+    source_file, source_line = _resolve_source_location(func)
+
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        logger.info(
+            "API_CALL | %s | file=%s | starts_at_line=%d",
+            func.__qualname__,
+            source_file,
+            source_line,
+        )
+        return func(*args, **kwargs)
+
+    wrapped._damascus_api_wrapped = True
+    return wrapped
 
 
 # ============================================================================
@@ -1196,6 +1253,25 @@ class Damascus3DBillet:
         
         logger.info(f"Operation log saved: {len(self.operation_history)} operations recorded")
         print(f"Operation log saved to: {output_path}")
+
+
+def _install_api_call_logging():
+    """
+    Instrument public simulator methods with API_CALL logs.
+
+    Public methods from both `DamascusLayer` and `Damascus3DBillet` are wrapped
+    so each invocation records the callable, source file, and definition line.
+    """
+    for cls in (DamascusLayer, Damascus3DBillet):
+        for attr_name, attr_value in list(vars(cls).items()):
+            if attr_name.startswith('_'):
+                continue
+            if not inspect.isfunction(attr_value):
+                continue
+            setattr(cls, attr_name, _api_call_wrapper(attr_value))
+
+
+_install_api_call_logging()
 
 
 # ============================================================================

@@ -3,26 +3,32 @@
 PyInstaller specification file for Damascus Pattern Simulator 3D
 Builds a standalone Windows executable with all dependencies bundled.
 """
+from pathlib import Path
 
 block_cipher = None
 
+SPEC_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SPEC_DIR.parent
+
 # Data files to include
 added_files = [
-    ('steel_database.py', '.'),
-    ('Hardening-tempering.txt', '.'),
-    ('steel-plasticity.txt', '.'),
-    ('steel-losses-during-forging.txt', '.'),
-    ('ProCut-hardening-tempering.txt', '.'),
-    ('ProCut-steel-plasticity.txt', '.'),
-    ('ProCut-steel-losses-during-forging.txt', '.'),
+    (str(PROJECT_ROOT / 'data' / '__init__.py'), 'data'),
+    (str(PROJECT_ROOT / 'data' / 'steel_database.py'), 'data'),
+    (str(PROJECT_ROOT / 'data' / 'Hardening-tempering.txt'), 'data'),
+    (str(PROJECT_ROOT / 'data' / 'steel-plasticity.txt'), 'data'),
+    (str(PROJECT_ROOT / 'data' / 'steel-losses-during-forging.txt'), 'data'),
+    (str(PROJECT_ROOT / 'Staging' / 'ProCut-hardening-tempering.txt'), 'Staging'),
+    (str(PROJECT_ROOT / 'Staging' / 'ProCut-steel-plasticity.txt'), 'Staging'),
+    (str(PROJECT_ROOT / 'Staging' / 'ProCut-steel-losses-during-forging.txt'), 'Staging'),
 ]
 
 a = Analysis(
-    ['damascus_3d_gui.py'],
-    pathex=[],
+    [str(PROJECT_ROOT / 'damascus_3d_gui.py')],
+    pathex=[str(PROJECT_ROOT)],
     binaries=[],
     datas=added_files,
     hiddenimports=[
+        'data.steel_database',
         'matplotlib.backends.backend_tkagg',
         'PIL._tkinter_finder',
         'open3d',

@@ -1,4 +1,4 @@
-# 3D Damascus Simulator - Development Notes
+﻿# 3D Damascus Simulator - Development Notes
 ## Session Date: 2026-02-02
 
 ---
@@ -31,27 +31,67 @@ Instead of manipulating pixels, we now:
 ## ARCHITECTURE
 
 ### File Structure
-```
+```text
 damascus-pattern-simulator/
-├── damascus_simulator.py          # Original 2D simulator (legacy)
-├── damascus_3d_poc.py              # Initial 3D proof-of-concept
-├── damascus_3d_simulator.py        # Production 3D simulator (NEW)
-├── SESSION_NOTES.md                # Previous 2D development notes
-├── 3D_DEVELOPMENT_NOTES.md         # This file
-├── venv/                           # Python virtual environment
-│   ├── open3d                      # 3D mesh library
-│   ├── numpy                       # Numerical computing
-│   ├── matplotlib                  # Visualization
-│   └── pillow                      # Image export
-└── Debug outputs:
-    ├── damascus_3d_debug_*.log     # Timestamped debug logs
-    ├── feather_operations.json     # Operation history for feather pattern
-    ├── twist_operations.json       # Operation history for twist pattern
-    ├── raindrop_operations.json    # Operation history for raindrop pattern
-    ├── feather_pattern.png         # Cross-section exports
-    ├── twist_pattern.png
-    └── raindrop_pattern.png
+|-- damascus_3d_gui.py                   # Main GUI application
+|-- damascus_3d_simulator.py             # Production 3D simulator
+|-- damascus_simulator.py                # Original 2D simulator (legacy)
+|-- README.md                            # Project overview and release notes
+|-- 3D_DEVELOPMENT_NOTES.md              # This file 
+|-- run_windows.bat                      # Windows run helper
+|-- Installation_and_Launch/
+|   |-- install_windows.bat              # Windows dependency installer
+|   |-- INSTALL_WINDOWS.md               # Windows setup guide
+|   |-- requirements.txt                 # Python dependencies
+|   |-- damascus_simulator.spec          # PyInstaller build spec
+|-- Research/
+|   |-- FEATHER_PATTERN_NOTES.md         # Feather pattern research notes
+|   |-- FEATHER_PATTERN_PHYSICS.md       # Feather pattern deformation physics
+|   |-- material-deformation-math.md     # Deformation math reference
+|-- data/
+|   |-- __init__.py                     # Marks data as importable package
+|   |-- steel_database.py                # Steel data lookup module
+|   |-- custom_steels.json              # User-added steels (generated at runtime)
+|   |-- steel-plasticity.txt             # Steel plasticity source data
+|   |-- steel-losses-during-forging.txt  # Steel forging loss source data
+|   |-- Hardening-tempering.txt          # Heat-treatment source data
+|-- Staging/
+|   |-- ProCut-steel-plasticity.txt      # Staged source material
+|   |-- ProCut-steel-losses-during-forging.txt
+|   |-- ProCut-hardening-tempering.txt
+|-- testing/
+|   |-- damascus_3d_poc.py               # Initial 3D proof-of-concept
+|   |-- test_custom_steel.py             # Data validation test script
+|-- Debug outputs (generated in project root):
+|   |-- damascus_3d_debug_*.log          # Timestamped debug logs
+|   |-- feather_operations.json          # Operation history for feather pattern
+|   |-- twist_operations.json            # Operation history for twist pattern
+|   |-- raindrop_operations.json         # Operation history for raindrop pattern
+|   |-- feather_pattern.png              # Cross-section exports
+|   |-- twist_pattern.png
+|   |-- raindrop_pattern.png
 ```
+
+### Filesystem Path Refactor (2026-02-05)
+
+To support the reorganized folder layout reliably, file access was refactored to
+be path-stable (not dependent on the current working directory).
+
+**Key changes:**
+- `damascus_3d_gui.py` imports steel data via `from data.steel_database import ...`
+- GUI reference viewers now read:
+  - `data/steel-losses-during-forging.txt`
+  - `data/steel-plasticity.txt`
+- `data/steel_database.py` now defaults custom steel storage to:
+  - `data/custom_steels.json`
+- `testing/test_custom_steel.py` updated for package import path and new custom steel path
+- `run_windows.bat` now changes to project root using `%~dp0` before launching
+- `Installation_and_Launch/install_windows.bat` now:
+  - resolves project root from script location
+  - installs dependencies from `Installation_and_Launch/requirements.txt`
+- `Installation_and_Launch/damascus_simulator.spec` now packages assets from:
+  - `data/`
+  - `Staging/`
 
 ### Class Hierarchy
 
@@ -135,17 +175,17 @@ Represents the complete billet with multiple layers.
 
 **Vertical Displacement (Waterfall):**
 ```
-Δy = -wedge_depth × intensity × layer_position_normalized
+Î”y = -wedge_depth Ã— intensity Ã— layer_position_normalized
 
 where:
-  intensity = exp(-(dist_from_center²) / (2σ²))     [Gaussian falloff]
-  σ = billet_width / 3.0                             [deformation zone width]
+  intensity = exp(-(dist_from_centerÂ²) / (2ÏƒÂ²))     [Gaussian falloff]
+  Ïƒ = billet_width / 3.0                             [deformation zone width]
   layer_position_normalized = layer_y / total_height  [0=bottom, 1=top]
 ```
 
 **Horizontal Displacement (Split):**
 ```
-Δx = side × (split_gap + wedge_depth × tan(wedge_angle)) × intensity × layer_position_normalized
+Î”x = side Ã— (split_gap + wedge_depth Ã— tan(wedge_angle)) Ã— intensity Ã— layer_position_normalized
 
 where:
   side = sign(x - center_x)  [-1 for left, +1 for right]
@@ -154,7 +194,7 @@ where:
 
 **Parameters:**
 - `wedge_depth`: How deep wedge penetrates (typical: 15-20mm)
-- `wedge_angle`: Angle from vertical (typical: 30-40°)
+- `wedge_angle`: Angle from vertical (typical: 30-40Â°)
 - `split_gap`: Initial gap at split point (typical: 5-8mm)
 
 **Debug Output:**
@@ -177,12 +217,12 @@ where:
 
 **Rotation Angle Variation:**
 ```
-θ(z) = θ_max × (z + length/2) / length
+Î¸(z) = Î¸_max Ã— (z + length/2) / length
 
 where:
-  z ∈ [-length/2, +length/2]
-  One end (z = -length/2): θ = 0° (no twist)
-  Other end (z = +length/2): θ = θ_max (full twist)
+  z âˆˆ [-length/2, +length/2]
+  One end (z = -length/2): Î¸ = 0Â° (no twist)
+  Other end (z = +length/2): Î¸ = Î¸_max (full twist)
 ```
 
 **Rotation Transformation (Z-axis twist, rotates in XY plane):**
@@ -190,13 +230,13 @@ where:
 For each vertex at (x, y, z):
   1. Translate to layer center: (x', y') = (x - center_x, y - center_y)
   2. Apply rotation matrix:
-     x_new = x' × cos(θ(z)) - y' × sin(θ(z))
-     y_new = x' × sin(θ(z)) + y' × cos(θ(z))
+     x_new = x' Ã— cos(Î¸(z)) - y' Ã— sin(Î¸(z))
+     y_new = x' Ã— sin(Î¸(z)) + y' Ã— cos(Î¸(z))
   3. Translate back: (x_new + center_x, y_new + center_y)
 ```
 
 **Parameters:**
-- `angle_degrees`: Total twist angle (typical: 90-180°)
+- `angle_degrees`: Total twist angle (typical: 90-180Â°)
 - `axis`: Rotation axis (typically 'z' for length axis)
 
 **Debug Output:**
@@ -220,11 +260,11 @@ For each vertex at (x, y, z):
 **Uniform Vertical Scaling:**
 ```
 For each vertex at (x, y, z):
-  y_new = y × compression_factor
+  y_new = y Ã— compression_factor
 
 For each layer:
-  thickness_new = thickness × compression_factor
-  z_position_new = z_position × compression_factor
+  thickness_new = thickness Ã— compression_factor
+  z_position_new = z_position Ã— compression_factor
 ```
 
 **Parameters:**
@@ -252,19 +292,19 @@ For each layer:
 **Radial Displacement:**
 ```
 For each vertex:
-  dist = sqrt((x - x_hole)² + (z - z_hole)²)  [distance in XZ plane]
+  dist = sqrt((x - x_hole)Â² + (z - z_hole)Â²)  [distance in XZ plane]
   
   If dist < radius:  [inside hole]
     push_factor = 1.5  [strong outward push]
   
-  Else if dist < 2×radius:  [near hole]
-    influence = exp(-((dist - radius)²) / (2×radius²))  [smooth falloff]
-    push_factor = influence × 0.3  [gentle push]
+  Else if dist < 2Ã—radius:  [near hole]
+    influence = exp(-((dist - radius)Â²) / (2Ã—radiusÂ²))  [smooth falloff]
+    push_factor = influence Ã— 0.3  [gentle push]
   
   Displacement:
     direction = (dx/dist, dz/dist)  [unit vector]
-    Δx = direction_x × radius × push_factor
-    Δz = direction_z × radius × push_factor
+    Î”x = direction_x Ã— radius Ã— push_factor
+    Î”z = direction_z Ã— radius Ã— push_factor
 ```
 
 **Parameters:**
@@ -294,9 +334,9 @@ This is how we get the traditional 2D Damascus pattern view from our 3D simulati
 
 **Coordinate Mapping:**
 ```
-World coordinates → Pixel coordinates:
-  px = (x - x_min) / (x_max - x_min) × resolution
-  py = (y - y_min) / (y_max - y_min) × resolution
+World coordinates â†’ Pixel coordinates:
+  px = (x - x_min) / (x_max - x_min) Ã— resolution
+  py = (y - y_min) / (y_max - y_min) Ã— resolution
   
 Where:
   x_min = -width/2, x_max = +width/2
@@ -493,8 +533,8 @@ Each demo saves a complete operation log:
 - **Pan**: Shift + Left click + drag (matplotlib default)
 
 **View Setup:**
-- Initial elevation: 20° (slightly above)
-- Initial azimuth: 45° (front-right corner view)
+- Initial elevation: 20Â° (slightly above)
+- Initial azimuth: 45Â° (front-right corner view)
 - Equal aspect ratio on all axes
 - Coordinate grid enabled
 - Axis labels in mm units
@@ -526,12 +566,12 @@ Each demo saves a complete operation log:
 ### Axis Definitions
 ```
   Y (height)
-  ↑
+  â†‘
   |    Z (length)
-  |   ↗
+  |   â†—
   |  /
   | /
-  |/________→ X (width)
+  |/________â†’ X (width)
  origin
 ```
 
@@ -548,9 +588,9 @@ Each demo saves a complete operation log:
   - Range: [-length/2, +length/2]
 
 **Layer Positioning:**
-- Layer 0 (bottom): Y ∈ [0, thickness₀]
-- Layer 1: Y ∈ [thickness₀, thickness₀ + thickness₁]
-- Layer i: Y ∈ [Σ(thickness₀..ᵢ₋₁), Σ(thickness₀..ᵢ)]
+- Layer 0 (bottom): Y âˆˆ [0, thicknessâ‚€]
+- Layer 1: Y âˆˆ [thicknessâ‚€, thicknessâ‚€ + thicknessâ‚]
+- Layer i: Y âˆˆ [Î£(thicknessâ‚€..áµ¢â‚‹â‚), Î£(thicknessâ‚€..áµ¢)]
 
 ---
 
@@ -564,14 +604,14 @@ Each demo saves a complete operation log:
 - Debug log
 
 **Steps:**
-1. Create 30-layer billet (50mm × 100mm)
+1. Create 30-layer billet (50mm Ã— 100mm)
    - White layers: 0.8mm thick
    - Black layers: 0.8mm thick
    - Total height: 24mm
 
 2. Apply wedge deformation
    - Depth: 18mm
-   - Angle: 35°
+   - Angle: 35Â°
    - Split gap: 6mm
 
 3. Extract cross-section at Z=0mm
@@ -591,13 +631,13 @@ Each demo saves a complete operation log:
 - Debug log
 
 **Steps:**
-1. Create 24-layer billet (40mm × 120mm)
+1. Create 24-layer billet (40mm Ã— 120mm)
    - All layers: 1.0mm thick
    - Total height: 24mm
 
-2. Apply 180° twist along Z-axis
+2. Apply 180Â° twist along Z-axis
 
-3. Compress to 70% (24mm → 16.8mm)
+3. Compress to 70% (24mm â†’ 16.8mm)
    - Consolidates twisted layers
    - Closes any gaps
 
@@ -618,16 +658,16 @@ Each demo saves a complete operation log:
 - Debug log
 
 **Steps:**
-1. Create 25-layer billet (60mm × 80mm)
+1. Create 25-layer billet (60mm Ã— 80mm)
    - All layers: 0.8mm thick
    - Total height: 20mm
 
-2. Drill 9 holes in 3×3 grid
-   - Positions: (-15,±20), (0,±20), (+15,±20) and center row
+2. Drill 9 holes in 3Ã—3 grid
+   - Positions: (-15,Â±20), (0,Â±20), (+15,Â±20) and center row
    - Radius: 6mm each
    - Radial displacement outward
 
-3. Compress to 50% (20mm → 10mm)
+3. Compress to 50% (20mm â†’ 10mm)
    - Closes holes into elliptical/raindrop shapes
    - Creates organic flowing patterns
 
@@ -666,10 +706,10 @@ Each demo saves a complete operation log:
 
 **Drilling (single hole):**
 - Time: ~0.3-0.5s
-- Affects: ~50-100 vertices (within 2×radius)
+- Affects: ~50-100 vertices (within 2Ã—radius)
 
 **Cross-Section Extraction:**
-- Time: ~2-4s for 800×800 image
+- Time: ~2-4s for 800Ã—800 image
 - Processes: ~360 triangles
 - Colors: ~100,000-200,000 pixels
 
@@ -717,14 +757,14 @@ Each demo saves a complete operation log:
 ## NEXT STEPS (PRIORITIZED)
 
 ### Phase 1: Core Improvements (IMMEDIATE)
-1. ✅ **Enhanced wedge physics** - Better waterfall simulation
-2. ✅ **Twist operation** - Ladder Damascus support
-3. ✅ **Compression operation** - Consolidation
-4. ✅ **Drilling operation** - Raindrop Damascus support
-5. ✅ **Cross-section extraction** - 2D pattern views
-6. ✅ **Extensive debugging** - Logging, statistics, history tracking
-7. ⏳ **Test all demos** - Verify feather, twist, raindrop patterns
-8. ⏳ **Parameter tuning** - Optimize for realistic results
+1. âœ… **Enhanced wedge physics** - Better waterfall simulation
+2. âœ… **Twist operation** - Ladder Damascus support
+3. âœ… **Compression operation** - Consolidation
+4. âœ… **Drilling operation** - Raindrop Damascus support
+5. âœ… **Cross-section extraction** - 2D pattern views
+6. âœ… **Extensive debugging** - Logging, statistics, history tracking
+7. â³ **Test all demos** - Verify feather, twist, raindrop patterns
+8. â³ **Parameter tuning** - Optimize for realistic results
 
 ### Phase 2: Advanced Physics (NEXT)
 1. **Higher-resolution meshes** - Subdivide boxes for smoother deformations
@@ -743,7 +783,7 @@ Each demo saves a complete operation log:
 
 ### Phase 4: Integration (FINAL)
 1. **Merge with original simulator** - Unified application
-2. **2D ↔ 3D switching** - Toggle between legacy and new modes
+2. **2D â†” 3D switching** - Toggle between legacy and new modes
 3. **Pattern library** - Pre-built patterns (mosaic, raindrop grid, etc.)
 4. **Documentation** - User manual, tutorial videos
 5. **Performance optimization** - GPU acceleration, caching
@@ -759,7 +799,7 @@ Each demo saves a complete operation log:
 - [ ] Confirm waterfalls flow downward and outward
 - [ ] Verify top layers displace more than bottom
 - [ ] Test different wedge_depth values (10, 15, 20, 25mm)
-- [ ] Test different wedge_angle values (25°, 30°, 35°, 40°)
+- [ ] Test different wedge_angle values (25Â°, 30Â°, 35Â°, 40Â°)
 - [ ] Test different split_gap values (3, 5, 7, 10mm)
 - [ ] Export PNG and verify quality
 - [ ] Check operation log JSON structure
@@ -770,7 +810,7 @@ Each demo saves a complete operation log:
 - [ ] Check ladder pattern in cross-section
 - [ ] Confirm twist varies along length
 - [ ] Verify compression consolidates layers
-- [ ] Test different twist angles (90°, 180°, 270°, 360°)
+- [ ] Test different twist angles (90Â°, 180Â°, 270Â°, 360Â°)
 - [ ] Test different compression factors (0.5, 0.7, 0.9)
 - [ ] Export and verify
 
@@ -780,7 +820,7 @@ Each demo saves a complete operation log:
 - [ ] Check radial displacement around holes
 - [ ] Verify compression creates raindrop shapes
 - [ ] Test different hole radii (4, 6, 8, 10mm)
-- [ ] Test different hole patterns (2×2, 4×4, random)
+- [ ] Test different hole patterns (2Ã—2, 4Ã—4, random)
 - [ ] Test different compression levels
 - [ ] Export and verify
 
@@ -804,9 +844,9 @@ Each demo saves a complete operation log:
 - **Too deep (> 25mm)**: Unrealistic, layers may invert
 
 **Wedge Angle:**
-- **Shallow (< 25°)**: Narrow split, waterfalls stay close
-- **Optimal (30-40°)**: Balanced spread, realistic feather
-- **Steep (> 45°)**: Wide split, waterfalls far apart
+- **Shallow (< 25Â°)**: Narrow split, waterfalls stay close
+- **Optimal (30-40Â°)**: Balanced spread, realistic feather
+- **Steep (> 45Â°)**: Wide split, waterfalls far apart
 
 **Split Gap:**
 - **Small (< 3mm)**: Waterfalls nearly touch, thin vein
@@ -816,9 +856,9 @@ Each demo saves a complete operation log:
 ### Twist Damascus
 
 **Twist Angle:**
-- **90°**: Quarter turn, subtle ladder
-- **180°**: Half turn, clear ladder pattern
-- **360°**: Full turn, complex interference
+- **90Â°**: Quarter turn, subtle ladder
+- **180Â°**: Half turn, clear ladder pattern
+- **360Â°**: Full turn, complex interference
 
 **Compression Factor:**
 - **Light (0.8-0.9)**: Gentle consolidation
@@ -981,18 +1021,18 @@ When investigating issues:
 - Gary's insight: "PIXELS CAN'T DEFORM PHYSICALLY!"
 
 **Development Progress:**
-1. ✅ Created virtual environment with Open3D
-2. ✅ Built initial proof-of-concept (`damascus_3d_poc.py`)
-3. ✅ Fixed Wayland display issues (matplotlib fallback)
-4. ✅ Implemented wedge deformation with proper physics
-5. ✅ Added twist operation for ladder Damascus
-6. ✅ Added compression operation
-7. ✅ Added drilling operation for raindrop patterns
-8. ✅ Implemented cross-section extraction
-9. ✅ Built production version (`damascus_3d_simulator.py`)
-10. ✅ Added extensive debugging/logging system
-11. ✅ Created comprehensive documentation (this file)
-12. ⏳ Ready for testing and parameter tuning
+1. âœ… Created virtual environment with Open3D
+2. âœ… Built initial proof-of-concept (`damascus_3d_poc.py`)
+3. âœ… Fixed Wayland display issues (matplotlib fallback)
+4. âœ… Implemented wedge deformation with proper physics
+5. âœ… Added twist operation for ladder Damascus
+6. âœ… Added compression operation
+7. âœ… Added drilling operation for raindrop patterns
+8. âœ… Implemented cross-section extraction
+9. âœ… Built production version (`damascus_3d_simulator.py`)
+10. âœ… Added extensive debugging/logging system
+11. âœ… Created comprehensive documentation (this file)
+12. â³ Ready for testing and parameter tuning
 
 **Files Created This Session:**
 - `damascus_3d_poc.py` (initial prototype)
@@ -1032,10 +1072,10 @@ When investigating issues:
 - **Pillow 12.1.0**: Image export (PNG)
 
 ### Mathematical Concepts
-- Gaussian falloff: `exp(-x²/(2σ²))` for smooth intensity curves
+- Gaussian falloff: `exp(-xÂ²/(2ÏƒÂ²))` for smooth intensity curves
 - Rotation matrices: 2D rotation in XY plane
 - Linear interpolation: For varying twist along length
-- Coordinate transformations: World space ↔ pixel space
+- Coordinate transformations: World space â†” pixel space
 
 ---
 
@@ -1075,7 +1115,30 @@ When investigating issues:
 
 ## CHANGELOG
 
-### Version 2.0 (2026-02-02) - 3D MESH-BASED REWRITE
+### Version 2.0.3-beta (2026-02-05) - FILESYSTEM PATH REFACTOR
+- Refactored imports to use `data.steel_database` package path
+- Added `data/__init__.py` for package-aware imports
+- Updated GUI reference file loaders to use `data/` paths instead of root-relative filenames
+- Updated custom steel persistence to `data/custom_steels.json`
+- Updated test script path handling for new package/file layout
+- Hardened Windows launcher/installer scripts for script-relative path resolution
+- Updated PyInstaller spec to include resources from `data/` and `Staging/`
+
+### Version 2.0.2-beta (2026-02-05) - DEBUGGING + WINDOWS TOOLING HARDENING
+- Added live Tkinter debug console streaming via `TkTextLogHandler` in `damascus_3d_gui.py`
+- Added API call instrumentation wrappers in `damascus_3d_simulator.py` using `inspect` and `functools`
+- Added structured `API_CALL` log records with callable name, source file, and definition line
+- Added Windows installation tooling/docs (`Installation_and_Launch/install_windows.bat`, `run_windows.bat`, `Installation_and_Launch/INSTALL_WINDOWS.md`)
+- Updated Windows installer logic to require Python 3.12 for Open3D compatibility
+
+### Version 2.0.1-beta (2026-02-04) - BUILD PLATE SYSTEM + GUI BETA RELEASE
+- Added static build plate dimensions and visual workspace boundary in the 3D viewport
+- Added oversized billet/forging validation with auto-resize choices (resize/continue/cancel)
+- Added stable build-plate-based viewport scaling for a consistent workspace reference frame
+- Added GUI forging workflows for square and octagonal bars with volume-conservation-driven sizing
+- Added beta release documentation and session notes for the build plate rollout
+
+### Version 2.0.0-beta (2026-02-02) - 3D MESH-BASED REWRITE
 - **BREAKING CHANGE**: Complete rewrite from 2D to 3D
 - Added DamascusLayer class with 3D mesh representation
 - Added Damascus3DBillet class with operation methods
@@ -1083,7 +1146,7 @@ When investigating issues:
 - Implemented twist deformation for ladder Damascus
 - Implemented compression operation
 - Implemented drilling operation for raindrop patterns
-- Added cross-section extraction (3D → 2D projection)
+- Added cross-section extraction (3D â†’ 2D projection)
 - Added comprehensive logging system (console + file)
 - Added operation history tracking
 - Added statistics queries (per-layer and billet-wide)
@@ -1093,7 +1156,7 @@ When investigating issues:
 - Created three complete demos (feather, twist, raindrop)
 - Created extensive documentation
 
-### Version 1.0 (2026-01-31) - DEPRECATED 2D APPROACH
+### Version 1.0.0 (2026-01-31) - DEPRECATED 2D APPROACH
 - Original 2D simulator with pixel-based displacement
 - Worked for simple patterns but FAILED for feather Damascus
 - Identified as fundamentally flawed approach
@@ -1115,4 +1178,5 @@ Gary's realization that "pixels can't deform physically" led to the complete
 ---
 
 *End of Development Notes*
-*Last Updated: 2026-02-02 00:10 UTC*
+*Last Updated: 2026-02-05*
+

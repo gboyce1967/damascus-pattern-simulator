@@ -11,11 +11,15 @@ echo  Damascus Pattern Simulator 3D
 echo ============================================================
 echo.
 
+REM Always run from project root (directory containing this script)
+set "SCRIPT_DIR=%~dp0"
+cd /d "%SCRIPT_DIR%"
+
 REM Check if virtual environment exists
 if not exist venv (
     echo [ERROR] Virtual environment not found!
     echo.
-    echo Please run install_windows.bat first to install dependencies.
+    echo Please run Installation_and_Launch\install_windows.bat first to install dependencies.
     echo.
     pause
     exit /b 1
