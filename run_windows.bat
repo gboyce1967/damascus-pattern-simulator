@@ -14,6 +14,7 @@ echo.
 REM Always run from project root (directory containing this script)
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
+set "VENV_PYTHON=%SCRIPT_DIR%venv\Scripts\python.exe"
 
 REM Check if virtual environment exists
 if not exist venv (
@@ -25,9 +26,19 @@ if not exist venv (
     exit /b 1
 )
 
-REM Activate virtual environment
-echo Activating virtual environment...
-call venv\Scripts\activate.bat
+REM Use venv interpreter directly (robust if project folder is renamed/moved)
+if not exist "%VENV_PYTHON%" (
+    echo [ERROR] Virtual environment Python not found!
+    echo.
+    echo Expected: %VENV_PYTHON%
+    echo.
+    echo Please run Installation_and_Launch\install_windows.bat first to install dependencies.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo Using virtual environment interpreter...
 
 REM Check if main GUI file exists
 if not exist damascus_3d_gui.py (
@@ -40,7 +51,7 @@ if not exist damascus_3d_gui.py (
 )
 
 REM Verify dependencies before launching to avoid raw traceback
-python -c "import numpy, scipy, matplotlib, PIL, vispy, open3d; import tkinter" >nul 2>&1
+"%VENV_PYTHON%" -c "import numpy, scipy, matplotlib, PIL, vispy, open3d; import tkinter" >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Missing Python dependencies in virtual environment.
     echo.
@@ -56,7 +67,7 @@ REM Launch the application
 echo.
 echo Starting Damascus Pattern Simulator...
 echo.
-python damascus_3d_gui.py
+"%VENV_PYTHON%" damascus_3d_gui.py
 
 REM If there's an error, keep window open
 if errorlevel 1 (
