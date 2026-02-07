@@ -55,11 +55,17 @@ from PIL import Image, ImageTk
 import numpy as np
 import zipfile
 import os
-import matplotlib
-matplotlib.use('TkAgg')  # Use Tkinter backend for 2D cross-sections only
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 import logging
+
+# Matplotlib is optional - only needed for cross-section export
+try:
+    import matplotlib
+    matplotlib.use('TkAgg')
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    from matplotlib.figure import Figure
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
 from datetime import datetime
 import json
 
@@ -410,12 +416,11 @@ class Damascus3DGUI:
         Create right viewport panel.
         
         Contains:
-        - 3D viewport (top 60%) - VisPy OpenGL viewer
-        - Cross-section preview (bottom 40%) - Matplotlib 2D
+        - 3D viewport (full height) - VisPy OpenGL viewer
         """
-        # 3D Viewport (top) - VisPy
+        # 3D Viewport - VisPy (full panel)
         viewport_frame = ttk.LabelFrame(parent, text="3D Billet View (VisPy OpenGL)", padding=5)
-        viewport_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
+        viewport_frame.pack(fill=tk.BOTH, expand=True)
         
         # Create VisPy 3D viewer
         # Note: VisPy will create its own native widget that embeds in Tkinter
@@ -430,34 +435,14 @@ class Damascus3DGUI:
         logger.info("  - Right drag: Pan")
         logger.info("  - Mouse wheel: Zoom (proper zoom behavior!)")
         
-        # Cross-section preview (bottom)
-        xsection_frame = ttk.LabelFrame(parent, text="Cross-Section Preview", padding=5)
-        xsection_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Z-position slider
-        slider_frame = ttk.Frame(xsection_frame)
-        slider_frame.pack(fill=tk.X, pady=(0, 5))
-        
-        ttk.Label(slider_frame, text="Z Position:").pack(side=tk.LEFT, padx=5)
+        # Note: Cross-section preview removed to maximize 3D viewport space
+        # Z-position variables kept for potential future use
         self.z_position = tk.DoubleVar(value=0.0)
-        self.z_slider = ttk.Scale(slider_frame, from_=-50, to=50, 
-                                 variable=self.z_position, orient=tk.HORIZONTAL,
-                                 command=self.on_z_position_change)
-        self.z_slider.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.z_slider = None
+        self.z_label = None
+        self.xsection_canvas = None
         
-        self.z_label = ttk.Label(slider_frame, text="0.0 mm")
-        self.z_label.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Button(slider_frame, text="Update", 
-                  command=self.update_cross_section).pack(side=tk.LEFT, padx=5)
-        
-        # Canvas for cross-section image
-        self.xsection_canvas = tk.Canvas(xsection_frame, bg='#2d2d2d', 
-                                        highlightthickness=1, 
-                                        highlightbackground=self.colors['border'])
-        self.xsection_canvas.pack(fill=tk.BOTH, expand=True)
-        
-        logger.debug("Right panel created with 3D viewport and cross-section preview")
+        logger.debug("Right panel created with full-height 3D viewport")
     
     def setup_status_bar(self):
         """Create status bar at bottom."""
@@ -1505,7 +1490,9 @@ class Damascus3DGUI:
     
     def update_cross_section(self):
         """Update the cross-section preview."""
-        if self.billet is None:
+        # Cross-section preview was removed from UI - this function is now a no-op
+        # but kept for compatibility with existing code that calls it
+        if self.billet is None or self.xsection_canvas is None:
             return
         
         logger.debug(f"Updating cross-section at Z={self.z_position.get():.1f}mm")
@@ -1548,7 +1535,8 @@ class Damascus3DGUI:
     
     def on_z_position_change(self, value):
         """Called when Z-position slider changes."""
-        self.z_label.config(text=f"{float(value):.1f} mm")
+        if self.z_label is not None:
+            self.z_label.config(text=f"{float(value):.1f} mm")
     
     def set_top_view(self):
         """Set view to top-down (looking at build plate)."""

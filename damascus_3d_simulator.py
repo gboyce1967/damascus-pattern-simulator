@@ -198,11 +198,11 @@ class DamascusLayer:
             depth=self.thickness
         )
         
-        # Position: centered in X and Y, stacked in Z (height)
-        # X: width (centered at 0)
-        # Y: length (centered at 0) 
+        # Position: starts at origin (0,0,0) and extends in positive X, Y, Z directions
+        # X: width (starts at 0)
+        # Y: length (starts at 0) 
         # Z: height (layers stack upward from z=0)
-        translation = [-self.width/2, -self.length/2, self.z_position]
+        translation = [0, 0, self.z_position]
         logger.debug(f"Translating mesh by: {translation}")
         mesh.translate(translation)
         

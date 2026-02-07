@@ -159,21 +159,22 @@ class DamascusVispyViewer:
     def _draw_build_plate(self, width, length):
         """
         Draw build plate boundary as a rectangle at Z=0.
+        Build plate starts at origin (0,0,0) and extends in positive X,Y direction.
         
         Parameters:
         -----------
         width : float
-            Build plate width in mm
+            Build plate width in mm (X-axis)
         length : float
-            Build plate length in mm
+            Build plate length in mm (Y-axis)
         """
-        # Define rectangle corners at Z=0
+        # Define rectangle corners starting at origin (0,0,0)
         corners = np.array([
-            [-width/2, -length/2, 0],
-            [ width/2, -length/2, 0],
-            [ width/2,  length/2, 0],
-            [-width/2,  length/2, 0],
-            [-width/2, -length/2, 0]  # Close the loop
+            [0, 0, 0],
+            [width, 0, 0],
+            [width, length, 0],
+            [0, length, 0],
+            [0, 0, 0]  # Close the loop
         ], dtype=np.float32)
         
         # Create line visual
@@ -191,15 +192,16 @@ class DamascusVispyViewer:
     def _calculate_scene_bounds(self, billet, build_plate_width, build_plate_length):
         """
         Calculate the bounding box of the entire scene.
+        Build plate starts at origin (0,0,0), so scene center is offset.
         
         Parameters:
         -----------
         billet : Damascus3DBillet
             The billet to calculate bounds for
         build_plate_width : float
-            Width of build plate
+            Width of build plate (X-axis)
         build_plate_length : float
-            Length of build plate
+            Length of build plate (Y-axis)
         """
         # Get billet dimensions
         billet_width = billet.width
@@ -212,8 +214,9 @@ class DamascusVispyViewer:
         max_height = billet_height * 1.5  # Add some padding above
         
         # Store bounds as (center, size)
+        # Center is at the middle of the build plate since it starts at origin
         self.scene_bounds = {
-            'center': np.array([0, 0, max_height/2]),
+            'center': np.array([max_width/2, max_length/2, max_height/2]),
             'size': np.array([max_width, max_length, max_height])
         }
         
