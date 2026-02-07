@@ -16,10 +16,15 @@ Date: 2026-02-05
 
 import numpy as np
 import os
+import platform
 
-# Set PyOpenGL platform to use GLX on Linux (not EGL)
-if 'Linux' in os.uname().sysname:
-    os.environ['PYOPENGL_PLATFORM'] = 'glx'
+# Configure PyOpenGL platform per OS before importing VisPy/OpenGL.
+# Use setdefault so user-provided env vars still win.
+os_name = platform.system()
+if os_name == 'Linux':
+    os.environ.setdefault('PYOPENGL_PLATFORM', 'glx')
+elif os_name == 'Windows':
+    os.environ.setdefault('PYOPENGL_PLATFORM', 'win32')
 
 # Configure VisPy to use Tkinter backend
 import vispy

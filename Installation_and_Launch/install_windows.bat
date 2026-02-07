@@ -19,6 +19,7 @@ REM Resolve absolute paths
 set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..") do set "PROJECT_ROOT=%%~fI"
 set "REQUIREMENTS_FILE=%SCRIPT_DIR%requirements.txt"
+set "VENV_PYTHON=%PROJECT_ROOT%\venv\Scripts\python.exe"
 
 REM Always run installation from the project root
 cd /d "%PROJECT_ROOT%"
@@ -73,11 +74,11 @@ echo.
 REM Create virtual environment (optional but recommended)
 echo Creating virtual environment...
 if exist venv (
-    if not exist venv\Scripts\python.exe (
+    if not exist "!VENV_PYTHON!" (
         set "ERROR_MSG=Existing venv is missing venv\\Scripts\\python.exe"
         goto :fail
     )
-    venv\Scripts\python.exe -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 12) else 1)"
+    "!VENV_PYTHON!" -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 12) else 1)"
     if errorlevel 1 (
         set "ERROR_MSG=Existing venv is not Python 3.12. Delete the venv folder and run this installer again."
         goto :fail
@@ -93,22 +94,17 @@ if exist venv (
 )
 echo.
 
-REM Activate virtual environment
-echo Activating virtual environment...
-if not exist venv\Scripts\activate.bat (
-    set "ERROR_MSG=Virtual environment activation script not found: venv\\Scripts\\activate.bat"
+REM Use venv interpreter directly to avoid PATH/activation mismatch
+if not exist "%VENV_PYTHON%" (
+    set "ERROR_MSG=Virtual environment Python not found: venv\\Scripts\\python.exe"
     goto :fail
 )
-call venv\Scripts\activate.bat
-if errorlevel 1 (
-    set "ERROR_MSG=Failed to activate virtual environment."
-    goto :fail
-)
+echo Using virtual environment interpreter: %VENV_PYTHON%
 echo.
 
 REM Upgrade package tooling first
 echo Upgrading pip, setuptools, and wheel...
-python -m pip install --upgrade pip setuptools wheel
+"%VENV_PYTHON%" -m pip install --upgrade pip setuptools wheel
 if errorlevel 1 (
     set "ERROR_MSG=Failed to upgrade pip/setuptools/wheel."
     goto :fail
@@ -124,25 +120,29 @@ echo This may take several minutes...
 echo.
 
 REM Install from Installation_and_Launch\requirements.txt if it exists
-if exist "%REQUIREMENTS_FILE%" (
-    echo Installing from %REQUIREMENTS_FILE%...
-    pip install -r "%REQUIREMENTS_FILE%"
-    if errorlevel 1 (
-        set "ERROR_MSG=Failed to install dependencies from %REQUIREMENTS_FILE%."
-        goto :fail
-    )
-) else (
-    echo [WARN] %REQUIREMENTS_FILE% not found. Installing core dependencies directly...
-    pip install numpy scipy matplotlib Pillow open3d
-    if errorlevel 1 (
-        set "ERROR_MSG=Failed to install core dependencies."
-        goto :fail
-    )
+if exist "%REQUIREMENTS_FILE%" goto :install_from_requirements
+
+echo [WARN] requirements.txt not found in Installation_and_Launch. Installing core dependencies directly...
+"%VENV_PYTHON%" -m pip install --prefer-binary --upgrade numpy scipy matplotlib vispy PyOpenGL pyopengltk Pillow open3d
+if errorlevel 1 (
+    set "ERROR_MSG=Failed to install core dependencies."
+    goto :fail
 )
+goto :deps_installed
+
+:install_from_requirements
+echo Installing from requirements file...
+"%VENV_PYTHON%" -m pip install --prefer-binary --upgrade -r "%REQUIREMENTS_FILE%"
+if errorlevel 1 (
+    set "ERROR_MSG=Failed to install dependencies from requirements.txt."
+    goto :fail
+)
+
+:deps_installed
 
 REM Needed to build executable from damascus_simulator.spec
 echo Installing PyInstaller...
-pip install pyinstaller
+"%VENV_PYTHON%" -m pip install --upgrade pyinstaller
 if errorlevel 1 (
     set "ERROR_MSG=Failed to install PyInstaller."
     goto :fail
@@ -150,7 +150,7 @@ if errorlevel 1 (
 
 REM Sanity check imports so setup fails early if something is missing
 echo Verifying installed modules...
-python -c "import numpy, scipy, matplotlib, PIL, open3d; import tkinter; print('All required modules imported successfully.')"
+"%VENV_PYTHON%" -c "import numpy, scipy, matplotlib, PIL, vispy, open3d, OpenGL, pyopengltk; import tkinter; print('All required modules imported successfully.')"
 if errorlevel 1 (
     set "ERROR_MSG=Dependency verification failed (one or more imports did not load)."
     goto :fail
@@ -164,8 +164,7 @@ echo.
 echo To run the Damascus Pattern Simulator:
 echo   1. Run: run_windows.bat
 echo   OR
-echo   2. Manually activate venv: venv\Scripts\activate.bat
-echo   3. Then run: python damascus_3d_gui.py
+echo   2. Run directly with: venv\Scripts\python.exe damascus_3d_gui.py
 echo.
 echo ============================================================
 pause

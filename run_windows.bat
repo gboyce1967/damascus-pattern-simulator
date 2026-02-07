@@ -39,6 +39,19 @@ if not exist damascus_3d_gui.py (
     exit /b 1
 )
 
+REM Verify dependencies before launching to avoid raw traceback
+python -c "import numpy, scipy, matplotlib, PIL, vispy, open3d; import tkinter" >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Missing Python dependencies in virtual environment.
+    echo.
+    echo Run Installation_and_Launch\install_windows.bat to install or repair dependencies.
+    echo.
+    echo If you installed packages manually, make sure they were installed into: venv\Scripts\python.exe
+    echo.
+    pause
+    exit /b 1
+)
+
 REM Launch the application
 echo.
 echo Starting Damascus Pattern Simulator...
