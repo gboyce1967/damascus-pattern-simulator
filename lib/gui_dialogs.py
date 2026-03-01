@@ -17,23 +17,34 @@ from lib.logging_config import logger, LOGS_DIR
 from lib.tk_log_handler import TkTextLogHandler
 
 
-def show_debug_console(root, existing_window=None, existing_handler=None):
+def center_dialog(dialog):
+    """Center a dialog on screen."""
+    dialog.update_idletasks()
+    w = dialog.winfo_reqwidth() + 40
+    h = dialog.winfo_reqheight() + 20
+    x = (dialog.winfo_screenwidth() - w) // 2
+    y = (dialog.winfo_screenheight() - h) // 2
+    dialog.geometry(f"{w}x{h}+{x}+{y}")
+
+
+def show_debug_console(root, existing_window=None, existing_text=None, existing_handler=None):
     """
     Show a live debug console window that streams logger output.
 
     Args:
         root: Tkinter root window
         existing_window: If a console is already open, pass it to raise it
+        existing_text: Existing ScrolledText widget (preserved on reuse)
         existing_handler: Existing TkTextLogHandler to remove before creating new
 
     Returns:
-        tuple: (console_window, console_text_widget, log_handler)
+        dict: {'window': ..., 'text': ..., 'handler': ...}
     """
     if existing_window and existing_window.winfo_exists():
         existing_window.lift()
         existing_window.focus_force()
         logger.info("Debug console already open")
-        return existing_window, None, existing_handler
+        return {'window': existing_window, 'text': existing_text, 'handler': existing_handler}
 
     logger.info("Opening debug console window")
     console = tk.Toplevel(root)
@@ -74,7 +85,7 @@ def show_debug_console(root, existing_window=None, existing_handler=None):
     handler.setLevel(logging.DEBUG)
     logger.addHandler(handler)
 
-    return console, text_area, handler
+    return {'window': console, 'text': text_area, 'handler': handler}
 
 
 def show_billet_stats(root, billet, operation_history):

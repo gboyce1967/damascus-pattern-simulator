@@ -12,10 +12,16 @@ Modules:
     damascus_billet      - Damascus3DBillet (full billet engine)
     vispy_viewer         - DamascusVispyViewer (OpenGL 3D viewer)
     tk_log_handler       - TkTextLogHandler (streams logs to Tkinter widget)
-    gui_dialogs          - Standalone GUI dialog helpers
+    gui_dialogs          - Standalone GUI dialog helpers (incl. center_dialog)
     gui_references       - Reference material viewer dialogs
     gui_export           - Export functions (3D model, cross-section, log)
-    gui_forging          - Forging operation dialogs (square, octagon)
+    gui_forging          - Backward-compat re-exports for forging dialogs
+    forging_wedge        - Wedge deformation (feather Damascus)
+    forging_twist        - Twist deformation (ladder/twist Damascus)
+    forging_compression  - Compression (hammering/pressing)
+    forging_drill        - Drilling (raindrop Damascus)
+    forging_square       - Forge to square bar (GUI dialog + physics)
+    forging_octagon      - Forge to octagonal bar (GUI dialog + physics)
     demo_functions       - CLI demo runners
 """
 
@@ -36,5 +42,11 @@ __all__ = [
     'gui_references',
     'gui_export',
     'gui_forging',
+    'forging_wedge',
+    'forging_twist',
+    'forging_compression',
+    'forging_drill',
+    'forging_square',
+    'forging_octagon',
     'demo_functions',
 ]

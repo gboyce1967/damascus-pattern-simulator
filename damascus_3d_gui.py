@@ -995,7 +995,7 @@ class Damascus3DGUI:
     def show_debug_console(self):
         """Show a live debug console window (delegates to lib)."""
         result = show_debug_console(
-            self.root, logger, SIM_LOGS_DIR,
+            self.root,
             self.debug_console_window, self.debug_console_text, self.debug_console_handler
         )
         self.debug_console_window = result['window']
