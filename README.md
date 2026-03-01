@@ -1,6 +1,6 @@
 # Damascus Pattern Simulator - Beta Release (3D Version)
-**Version**: 2.1.1-beta  
-**Release Date**: 2026-02-07  
+**Version**: 2.2.0-beta  
+**Release Date**: 2026-02-28  
 **Status**: 🚧 **BETA - UNDER ACTIVE DEVELOPMENT** 🚧
 
 ---
@@ -39,7 +39,16 @@
 
 This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D physics and mesh-based simulation. The old 2D pixel-based simulator has been deprecated in favor of this more accurate and powerful 3D engine.
 
-### Recent Updates (2026-02-07)
+### Recent Updates (2026-02-28)
+- **Major modularization refactoring**: Broke monolithic scripts into reusable modules in `lib/`
+  - `damascus_3d_simulator.py` reduced from ~1,524 to ~149 lines (thin entry point + re-exports)
+  - `damascus_3d_gui.py` reduced from ~2,608 to ~1,086 lines (GUI shell delegates to lib functions)
+  - `vispy_3d_viewer.py` reduced from ~368 to ~42 lines (re-export wrapper)
+  - 12 new modules in `lib/` covering: logging, API instrumentation, layer/billet classes, VisPy viewer, GUI dialogs, reference panels, export functions, forging operations, and demo patterns
+  - All modules are independently importable for future scripting and automation
+  - Backward-compatible: existing imports from root scripts still work via re-exports
+
+### Previous Updates (2026-02-07)
 - Added live debug console streaming in `damascus_3d_gui.py` via `TkTextLogHandler`
 - Added API call instrumentation logs in `damascus_3d_simulator.py` (callable, source file, definition line)
 - Integrated VisPy OpenGL rendering into the GUI via `vispy_3d_viewer.py`
@@ -208,10 +217,23 @@ final_length = original_volume / (target_size²)
 Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extension)
 
 ### File Structure
-- `damascus_3d_gui.py` - Main GUI application (1,700+ lines)
-- `damascus_3d_simulator.py` - 3D physics engine (1,400+ lines)
-- `vispy_3d_viewer.py` - VisPy OpenGL 3D viewer integration
+- `damascus_3d_gui.py` - Main GUI entry point (delegates to lib modules)
+- `damascus_3d_simulator.py` - Engine entry point (re-exports from lib for backward compat)
+- `vispy_3d_viewer.py` - VisPy viewer entry point (re-export wrapper)
+- `lib/` - **Reusable module library** (12 modules):
+  - `logging_config.py` - Logger setup, runtime root detection, log directory management
+  - `api_instrumentation.py` - API call tracing and instrumentation
+  - `damascus_layer.py` - `DamascusLayer` class
+  - `damascus_billet.py` - `Damascus3DBillet` class (core 3D engine)
+  - `vispy_viewer.py` - `DamascusVispyViewer` class (OpenGL rendering)
+  - `tk_log_handler.py` - `TkTextLogHandler` for live debug console
+  - `gui_dialogs.py` - Debug console, billet stats, about, quick start, build plate warning
+  - `gui_references.py` - Heat treatment, steel properties, custom steel, forging/plasticity refs
+  - `gui_export.py` - Export functions (3D model, cross-section, operation log)
+  - `gui_forging.py` - Forging operations (square bar, octagonal bar)
+  - `demo_functions.py` - Demo patterns (feather, twist, raindrop)
 - `3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
+- `DEVNOTES_modularization.md` - Modularization refactoring notes
 - `Research/` - Pattern research and deformation math references
 - `data/` - Steel data files and lookup module
 - `Staging/` - Prepared files for integration
@@ -408,6 +430,6 @@ New to Damascus steel patterns? Check out:
 
 ---
 
-*Last Updated: 2026-02-07*  
-*Version: 2.1.1-beta*  
+*Last Updated: 2026-02-28*  
+*Version: 2.2.0-beta*  
 *Status: Active Development*
