@@ -1,0 +1,12 @@
+===================================== 
+Damascus Desktop Installer - Mon 02/16/2026 13:14:57.63 
+===================================== 
+C:\Program Files\nodejs\npm
+C:\Program Files\nodejs\npm.cmd
+C:\Windows\py.exe
+v24.13.1
+The system cannot find the batch label specified - CHECK_TOOLS
+
+Installer finished. Press any key to close.
+
+D:\Software\projects\Damascus_new>
