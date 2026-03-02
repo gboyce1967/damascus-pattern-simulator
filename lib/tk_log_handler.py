@@ -2,6 +2,13 @@
 Tkinter Text Log Handler
 =========================
 
+!! ELECTRON MIGRATION REQUIRED !!
+This handler streams log messages into a Tkinter ScrolledText widget.
+The Electron UI replaces this with a log-tailing endpoint
+(GET /logs/tail in server.py) polled by the Timeline component.
+To re-integrate, this could be adapted to push logs via WebSocket
+instead of Tkinter's after() mechanism.
+
 Logging handler that streams log messages into a Tkinter text widget,
 allowing real-time debug output in the GUI.
 

@@ -48,6 +48,30 @@ All existing callers work without changes:
 - `damascus_3d_simulator.py` — same
 - `from lib.gui_forging import forge_to_square` — still works via re-exports
 
+## Headless Forging Wrappers for Electron Backend (2026-03-02)
+
+Added headless (no-GUI) wrappers in `python/engine/forge_ops.py` for the
+Electron + FastAPI backend. These call the same physics as the `lib/` modules
+but skip Tkinter dialogs:
+
+- `apply_wedge_safe(billet, wedge_depth, wedge_angle, split_gap)`
+- `apply_twist_safe(billet, angle_degrees)`
+- `apply_compression_safe(billet, compression_factor)`
+- `drill_hole_safe(billet, x_pos, z_pos, radius)`
+- `forge_to_square_safe(billet, target_bar_size, num_heats)`
+- `forge_to_octagon_safe(billet, target_bar_size, num_heats, chamfer_percent)` — NEW
+- `cross_section_png_safe(billet, y_slice, resolution)`
+
+All ops dispatched via `session.py:EngineSession.apply_operation(op, payload)`.
+
+## Tkinter UI Removed (2026-03-02)
+
+- Deleted `damascus_3d_gui.py` (Tkinter GUI entry point)
+- `vispy_3d_viewer.py` already removed during merge
+- All `lib/` modules preserved — Tkinter-specific ones annotated with
+  `!! ELECTRON MIGRATION REQUIRED !!` notes describing what needs updating
+- Operational modules (forging physics, billet, layer, logging) are unchanged
+
 ## Testing
 
 All imports and functional operations verified:
@@ -55,4 +79,4 @@ All imports and functional operations verified:
 - gui_forging re-exports work
 - Damascus3DBillet retains all methods
 - All 4 billet operations execute and record to operation_history
-- GUI and CLI simulator imports confirmed
+- Electron backend: 7 headless forge_ops wrappers tested via FastAPI

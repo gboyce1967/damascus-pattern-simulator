@@ -2,6 +2,13 @@
 VisPy-based 3D Viewer for Damascus Pattern Simulator
 =====================================================
 
+!! ELECTRON MIGRATION NOTE !!
+This module was the legacy 3D viewer using VisPy (OpenGL) embedded in Tkinter.
+The Electron UI replaces it with Three.js WebGL rendering in Viewport3D.tsx.
+This module is preserved for reference — the render_billet() mesh traversal
+and build plate drawing logic may be useful if VisPy is ever needed again
+(e.g. for headless server-side rendering or off-screen snapshot generation).
+
 OpenGL-accelerated 3D visualization using VisPy, replacing matplotlib's
 3D axes which have zoom limitations.
 

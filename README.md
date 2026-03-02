@@ -1,6 +1,6 @@
-# Damascus Pattern Simulator - Beta Release (3D Version)
-**Version**: 2.2.0-beta  
-**Release Date**: 2026-02-28  
+# Damascus Pattern Simulator
+**Version**: 2.3.0-beta  
+**Release Date**: 2026-03-02  
 **Status**: 🚧 **BETA - UNDER ACTIVE DEVELOPMENT** 🚧
 
 ---
@@ -10,61 +10,57 @@
 **This is beta software and is still under active development.**
 
 ### What Works
+✅ Electron + React desktop application  
+✅ Three.js WebGL 3D billet viewport with OrbitControls  
+✅ FastAPI Python backend (auto-spawned by Electron)  
 ✅ 3D mesh-based billet creation  
-✅ Static build plate system with auto-resize  
+✅ Build plate grid (auto-resizes when billet exceeds it)  
 ✅ Forge to square bar (with volume conservation)  
 ✅ Forge to octagonal bar (with chamfering)  
-✅ 3D visualization with camera controls  
+✅ Twist operation (full twist count slider)  
+✅ Feather / wedge split  
 ✅ Cross-section preview  
-✅ Export to .obj format  
+✅ Engine log streaming  
+✅ Collapsible sidebar operation panels  
 
 ### What's In Development
-🚧 **Twist/Ladder Damascus** - Implemented but needs testing  
-🚧 **Feather Damascus** - Wedge deformation needs refinement  
-🚧 **Raindrop Damascus** - Drilling operation needs testing  
-🚧 **Compression operations** - Not yet implemented  
-🚧 **Undo/Redo system** - Planned, not yet implemented  
+🚧 **Compression operations** - Backend ready, UI controls not yet added  
+🚧 **Raindrop Damascus (drill)** - Backend ready, UI controls not yet added  
+🚧 **Export dialog** - Backend supports OBJ/STL/PLY, native save dialog TBD  
+🚧 **Undo/Redo system** - Planned  
+🚧 **Steel reference database viewer** - Needs Electron UI  
 
 ### Known Issues
-⚠️ **No undo functionality** - Use "Reset Billet" to start over  
-⚠️ **Some pattern operations untested** - May produce unexpected results  
-⚠️ **Twist requires forging first** - Must forge to square/octagon before twisting  
+⚠️ **No undo functionality** - Restart session to start over  
+⚠️ **Some pattern operations need testing** - May produce unexpected results  
 ⚠️ **Performance with large billets** - Billets with >100 layers may be slow  
-
-**USE AT YOUR OWN RISK. This software may have bugs, crashes, or unexpected behavior.**
 
 ---
 
-## 🎉 What's New in 3D Version
+## 🎉 What's New
 
-This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D physics and mesh-based simulation. The old 2D pixel-based simulator has been deprecated in favor of this more accurate and powerful 3D engine.
+### 2026-03-02 — Electron UI & Integration
+- **New Electron + React + Tailwind frontend** replacing the legacy Tkinter GUI
+- **Three.js WebGL viewport** with proper axis mapping (billet lies flat on build plate)
+- **FastAPI Python backend** spawned by Electron, serving all forging operations
+- **Collapsible sidebar** with Feather, Forge to Square, Forge to Octagon, Twist, Export
+- **Twist slider** uses whole-number full twists (0–30) instead of raw degrees
+- **Build plate grid** is the fixed reference frame; auto-resizes only when billet outgrows it
+- **Headless forging ops** extracted into `python/engine/forge_ops.py` for all operations
+- **Tkinter UI removed** — all `lib/` modules preserved with migration notes
+- **Viewport resize** fills window on maximize (flex layout + ResizeObserver)
 
-### Recent Updates (2026-02-28)
-- **Major modularization refactoring**: Broke monolithic scripts into reusable modules in `lib/`
-  - `damascus_3d_simulator.py` reduced from ~1,524 to ~149 lines (thin entry point + re-exports)
-  - `damascus_3d_gui.py` reduced from ~2,608 to ~1,086 lines (GUI shell delegates to lib functions)
-  - `vispy_3d_viewer.py` reduced from ~368 to ~42 lines (re-export wrapper)
-  - 12 new modules in `lib/` covering: logging, API instrumentation, layer/billet classes, VisPy viewer, GUI dialogs, reference panels, export functions, forging operations, and demo patterns
-  - All modules are independently importable for future scripting and automation
-  - Backward-compatible: existing imports from root scripts still work via re-exports
+### 2026-03-01 — Modularization
+- Broke monolithic scripts into reusable modules in `lib/`
+  - 12 new modules covering: logging, API instrumentation, layer/billet classes, GUI dialogs, reference panels, export functions, forging operations, and demo patterns
+  - All modules independently importable for scripting and automation
+- Extracted 6 forging operations into individual `lib/forging_*.py` modules
 
 ### Previous Updates (2026-02-07)
-- Added live debug console streaming in `damascus_3d_gui.py` via `TkTextLogHandler`
-- Added API call instrumentation logs in `damascus_3d_simulator.py` (callable, source file, definition line)
-- Integrated VisPy OpenGL rendering into the GUI via `vispy_3d_viewer.py`
-- Updated the GUI 3D viewport to use VisPy camera controls (rotate/pan/zoom) with proper zoom behavior
-- Removed live cross-section preview panel to prioritize a full-height 3D viewport (PNG cross-section export remains available)
-- Added project folder organization for clarity: `Research/`, `data/`, `Staging/`, `testing/`, `Installation_and_Launch/`
-- Added Windows install/run support files (`Installation_and_Launch/install_windows.bat`, `run_windows.bat`, `Installation_and_Launch/INSTALL_WINDOWS.md`, `Installation_and_Launch/requirements.txt`)
-- Updated Windows installer to enforce Python 3.12 for Open3D compatibility
-- Refactored runtime file access for the new folder layout:
-  - `damascus_3d_gui.py` now imports steel data from `data/steel_database.py`
-  - Reference guides are loaded from `data/steel-losses-during-forging.txt` and `data/steel-plasticity.txt`
-  - Custom steel records now persist to `data/custom_steels.json`
-  - Windows launcher/installer scripts now resolve paths from their script locations
-  - `Installation_and_Launch/damascus_simulator.spec` now packages resources from `data/` and `Staging/`
-  - Debug logs now write to `logs/damascus_3d_debug_*.log`
-- Consolidated beta documentation into the root `README.md` so release notes stay current
+- Added API call instrumentation and live debug logging
+- Added project folder organization: `Research/`, `data/`, `Staging/`, `testing/`, `Installation_and_Launch/`
+- Added Windows install/run support files
+- Debug logs write to `logs/damascus_3d_debug_*.log`
 
 ### Major Features
 
@@ -75,171 +71,112 @@ This is a **complete rewrite** of the Damascus Pattern Simulator using real 3D p
 - Multiple heats simulation for realistic forging
 
 #### 🎨 **Interactive 3D Visualization**
-- Real-time 3D viewport with VisPy (OpenGL)
-- Adjustable camera angles (elevation, azimuth)
-- Smooth rotate/pan/zoom interaction
-- Quick view presets (top, front, isometric)
-- Full-height viewport for better 3D inspection
+- Three.js WebGL viewport with OrbitControls (rotate/pan/zoom)
+- Vertex-level axis remapping (engine → scene coordinates)
+- Billet origin at (0,0,0) on the build plate
+- Build plate grid auto-resizes when billet outgrows it
 
-#### 🏭 **Static Build Plate System** (NEW!)
-- Configurable workspace dimensions (default 400×400mm)
-- Visual build plate boundary reference
-- Intelligent oversized billet warnings
-- **Auto-resize feature**: One-click build plate adjustment
-- Consistent viewport that doesn't change with billet size
-
-#### 🔨 **Realistic Forging Operations** (TESTED & WORKING)
-- **Forge to Square Bar**: Compress billet into square cross-section
-- **Forge to Octagonal Bar**: Create 8-sided profile with chamfering
-- Progressive multi-heat forging simulation
-- Volume conservation validation
-- Automatic length extension calculation
-
-#### 📐 **Pattern Operations** (EXPERIMENTAL)
-- **Feather Damascus**: Wedge deformation with material splitting (⚠️ IN DEVELOPMENT)
-- **Twist/Ladder Damascus**: Torsional deformation around length axis (⚠️ NEEDS TESTING)
-- **Raindrop Damascus**: Drill holes with material flow simulation (⚠️ NEEDS TESTING)
-- Cross-section export available via PNG output
+#### 🔨 **Forging Operations**
+- **Forge to Square Bar**: Volume-conserving progressive forging
+- **Forge to Octagonal Bar**: Chamfered 8-sided profile
+- **Twist**: Full-twist count slider (0–30 twists)
+- **Feather / Wedge Split**: Depth, angle, split gap controls
+- Cross-section preview with adjustable slice position
 
 ---
 
 ## 🚀 Installation
 
 ### Requirements
-- **Windows**: Python **3.12.x** (required for Open3D in this project)
-- **Linux/macOS**: Python 3.8+ (manual install path)
-- Virtual environment (recommended)
+- **Node.js** 18+ and **npm**
+- **Python** 3.8+ with virtual environment
+- **Open3D**, **FastAPI**, **uvicorn**, **Pillow** (Python packages)
 
-### Windows Install (Recommended)
-1. Double-click `Installation_and_Launch/install_windows.bat`
-2. After install completes, double-click `run_windows.bat`
-
-Manual command-line flow:
-```bat
-Installation_and_Launch\install_windows.bat
-run_windows.bat
-```
-
-### Linux/macOS Manual Install
+### Setup
 ```bash
+# Clone and enter the project
+git clone <repo-url> ~/Projects/damascus-pattern-simulator
+cd ~/Projects/damascus-pattern-simulator
+
+# Python environment
 python3 -m venv venv
 source venv/bin/activate
-pip install -r Installation_and_Launch/requirements.txt
+pip install open3d fastapi uvicorn pillow numpy
+
+# Symlink for Electron to find Python
+ln -sf venv .venv
+
+# Node dependencies
+npm install
 ```
 
 ---
 
 ## 🎮 Usage
 
-### Launch the Application
+### Launch (Development)
 ```bash
-./damascus_3d_gui.py
+npm run dev
 ```
 
-Or use the desktop launcher: `Damascus Pattern Simulator`
+This starts:
+1. Vite dev server for the React renderer
+2. Electron main process
+3. FastAPI Python backend (auto-spawned by Electron)
 
-### Recommended Workflow (BETA)
+### Workflow
 
-**For best results, start with these tested features:**
-
-1. **Create a Billet**
-   - Set layer count (default: 30 layers - TESTED)
-   - Set layer thickness (white/black: 0.8mm each)
-   - Set billet dimensions (width × length, keep under 200mm for performance)
-   - Click "Create New Billet"
-
-2. **Configure Build Plate**
-   - Adjust width/length in "Build Plate (Workspace)" section
-   - Default: 400×400mm (WORKING)
-   - Auto-resize will trigger if billet exceeds plate size (WORKING)
-
-3. **Forge the Billet** ✅ **RECOMMENDED - FULLY TESTED**
-   - Click "🔨 Forge to Square Bar" or "⬡ Forge to Octagon Bar"
-   - Enter target bar size (try 15-25mm for good results)
-   - Set number of heats (3-7 recommended)
-   - Click "Forge"
-   - Choose auto-resize if bar exceeds build plate
-
-4. **Export Your Work**
-   - 💾 Save 3D Model (.obj format) - WORKING
-   - 🖼️ Save Cross-Section (PNG image) - WORKING
-   - 📋 Save Operation Log (JSON) - WORKING
-
-5. **Pattern Operations** ⚠️ **EXPERIMENTAL - USE WITH CAUTION**
-   - These features are implemented but not fully tested
-   - May produce unexpected results
-   - Save your work before applying patterns
-   - If something goes wrong, use "🔄 Reset Billet"
+1. **Billet auto-creates** on launch (50×100mm, 30 layers)
+2. **Forge** using sidebar controls (Square Bar, Octagonal Bar)
+3. **Twist** using the full-twist slider
+4. **Feather** — expand the collapsed Wedge Split section
+5. **Cross-section** — adjust slice position and resolution
+6. **Export** — OBJ/STL/PLY via the Export panel
 
 ---
 
-## 📊 Build Plate System ✅ (WORKING)
+## 📊 Build Plate System
 
-### What is the Build Plate?
-The build plate represents your workspace - a fixed area where billets can be placed. This mimics real-world manufacturing where you have workspace constraints.
-
-### Features
-- **Static Reference Frame**: Viewport doesn't resize with every billet change ✅
-- **Visual Boundary**: Dashed gray rectangle shows workspace limits ✅
-- **Intelligent Warnings**: Alerts when billet or forged bar exceeds plate size ✅
-- **Auto-Resize**: One-click adjustment to fit oversized billets ✅
-
-### Auto-Resize Options
-When a billet exceeds the build plate, you get three choices:
-1. **📐 Auto-Resize Build Plate**: Automatically adjusts to 110% of needed size (squared for symmetry)
-2. **✓ Continue Anyway**: Proceed with oversized billet (for visualization purposes)
-3. **✗ Cancel**: Abort the operation
+The build plate (grid) is the **fixed reference frame** in the 3D viewport. The billet sits on it at origin (0,0,0). The grid auto-resizes only when a forging operation produces a billet that exceeds its current size (1.5× padding).
 
 ---
 
 ## 🔧 Technical Details
 
 ### Architecture
-- **GUI**: Tkinter-based with embedded VisPy 3D viewport
+- **Frontend**: Electron + React + Tailwind CSS + Three.js
+- **Backend**: FastAPI Python server (spawned by Electron)
 - **3D Engine**: Open3D for mesh operations
 - **Physics**: Volume-conserving transformations
-- **Coordinate System**: X=width, Y=length, Z=height (layers stack in Z)
-
-<img width="1205" height="678" alt="image" src="https://github.com/user-attachments/assets/ed4abee8-e27e-43d5-9894-22a34e7ee9e1" />
-
-
-### Forging Physics (VERIFIED WORKING)
-Real forging physics using volume conservation:
-```
-V = width × length × height = constant
-```
-
-For a square bar:
-```
-final_length = original_volume / (target_size²)
-```
-
-Example: 50×100×24mm billet → 20×20mm square = 300mm long bar (3× extension)
+- **Coordinate System**:
+  - Engine: X=width, Y=length, Z=height (layers stack in Z)
+  - Scene: X=width, Y=height(up), Z=length (remapped at vertex level)
 
 ### File Structure
-- `damascus_3d_gui.py` - Main GUI entry point (delegates to lib modules)
-- `damascus_3d_simulator.py` - Engine entry point (re-exports from lib for backward compat)
-- `vispy_3d_viewer.py` - VisPy viewer entry point (re-export wrapper)
-- `lib/` - **Reusable module library** (12 modules):
-  - `logging_config.py` - Logger setup, runtime root detection, log directory management
-  - `api_instrumentation.py` - API call tracing and instrumentation
-  - `damascus_layer.py` - `DamascusLayer` class
-  - `damascus_billet.py` - `Damascus3DBillet` class (core 3D engine)
-  - `vispy_viewer.py` - `DamascusVispyViewer` class (OpenGL rendering)
-  - `tk_log_handler.py` - `TkTextLogHandler` for live debug console
-  - `gui_dialogs.py` - Debug console, billet stats, about, quick start, build plate warning
-  - `gui_references.py` - Heat treatment, steel properties, custom steel, forging/plasticity refs
-  - `gui_export.py` - Export functions (3D model, cross-section, operation log)
-  - `gui_forging.py` - Forging operations (square bar, octagonal bar)
-  - `demo_functions.py` - Demo patterns (feather, twist, raindrop)
-- `3D_DEVELOPMENT_NOTES.md` - Detailed development documentation
-- `DEVNOTES_modularization.md` - Modularization refactoring notes
-- `Research/` - Pattern research and deformation math references
-- `data/` - Steel data files and lookup module
-- `Staging/` - Prepared files for integration
-- `testing/` - PoC/test scripts
-- `Installation_and_Launch/` - Windows installation assets and packaging config
-- `logs/` - Runtime debug logs (`damascus_3d_debug_*.log`)
+- `src/main/` — Electron main process (spawns Python backend)
+- `src/renderer/src/` — React UI components:
+  - `App.tsx` — Root layout (3-column grid)
+  - `components/Sidebar.tsx` — Collapsible operation panels
+  - `components/Viewport3D.tsx` — Three.js WebGL viewport
+  - `components/CrossSection.tsx` — Cross-section preview
+  - `components/Timeline.tsx` — Operation timeline + engine logs
+- `src/preload/` — Electron preload bridge (IPC → FastAPI)
+- `python/engine/` — FastAPI backend:
+  - `server.py` — API endpoints
+  - `session.py` — Session manager + operation dispatch
+  - `forge_ops.py` — Headless forging wrappers
+  - `serialize.py` — Open3D mesh → JSON serialization
+- `python/vendor/` — Shim importing from `lib/`
+- `lib/` — Reusable module library (12+ modules):
+  - `damascus_billet.py` — Core 3D engine (`Damascus3DBillet`)
+  - `damascus_layer.py` — `DamascusLayer` class
+  - `forging_*.py` — Individual forging operation physics
+  - `logging_config.py` — Logger setup
+  - `gui_*.py`, `tk_log_handler.py`, `vispy_viewer.py` — Legacy Tkinter modules (annotated with migration notes)
+- `damascus_3d_simulator.py` — CLI entry point / re-export shim
+- `data/` — Steel database and reference files
+- `Research/` — Pattern research and deformation math
+- `logs/` — Runtime debug logs
 
 ---
 
@@ -430,6 +367,6 @@ New to Damascus steel patterns? Check out:
 
 ---
 
-*Last Updated: 2026-02-28*  
-*Version: 2.2.0-beta*  
+*Last Updated: 2026-03-02*  
+*Version: 2.3.0-beta*  
 *Status: Active Development*

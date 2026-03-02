@@ -2,6 +2,13 @@
 Forging Operation: Forge to Square Bar
 ========================================
 
+!! ELECTRON MIGRATION REQUIRED !!
+This module uses Tkinter for the parameter dialog and messagebox confirmations.
+The forging PHYSICS (lines 108+) are reusable — they are already extracted into
+python/engine/forge_ops.py:forge_to_square_safe() for the Electron backend.
+To fully migrate, replace the Tkinter dialog with a React component and the
+messagebox calls with API response payloads.
+
 Forges a Damascus billet into a square cross-section bar through
 multiple hammer strikes with volume conservation.
 

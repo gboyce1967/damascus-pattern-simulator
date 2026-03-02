@@ -2,6 +2,13 @@
 GUI Dialogs for Damascus Pattern Simulator
 ============================================
 
+!! ELECTRON MIGRATION REQUIRED !!
+This module uses Tkinter for dialog windows (debug console, billet stats,
+about, quick start, build plate warning, center_dialog). To re-integrate
+with the Electron UI, replace Tkinter dialogs with FastAPI endpoints that
+return JSON, and build corresponding React components in src/renderer/.
+The underlying logic (log tailing, stats formatting, etc.) is reusable.
+
 Standalone dialog functions that can be called from any Tkinter application.
 Each function accepts the necessary state rather than relying on a class.
 

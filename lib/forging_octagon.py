@@ -2,6 +2,13 @@
 Forging Operation: Forge to Octagonal Bar
 ============================================
 
+!! ELECTRON MIGRATION REQUIRED !!
+This module uses Tkinter for the parameter dialog and messagebox confirmations.
+The forging PHYSICS (lines 109+) are reusable — they are already extracted into
+python/engine/forge_ops.py:forge_to_octagon_safe() for the Electron backend.
+To fully migrate, replace the Tkinter dialog with a React component and the
+messagebox calls with API response payloads.
+
 Forges a Damascus billet into an octagonal cross-section bar.
 Creates an 8-sided profile by forging to square then chamfering corners.
 Traditional for twist Damascus.

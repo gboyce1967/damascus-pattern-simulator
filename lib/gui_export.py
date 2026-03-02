@@ -2,6 +2,14 @@
 GUI Export Functions for Damascus Pattern Simulator
 ====================================================
 
+!! ELECTRON MIGRATION REQUIRED !!
+This module uses Tkinter file dialogs (filedialog, messagebox) for export
+operations. To re-integrate with the Electron UI, replace file dialogs with
+FastAPI endpoints that accept an output path and return status, and use
+Electron's native dialog.showSaveDialog() on the frontend. The core export
+logic (billet.export_3d_model, billet.save_cross_section_image,
+billet.save_operation_log) is fully reusable.
+
 Standalone export functions with file dialogs, usable from any Tkinter app.
 
 Usage:

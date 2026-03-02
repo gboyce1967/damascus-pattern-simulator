@@ -8,6 +8,21 @@ BREAKTHROUGH APPROACH:
 This simulator uses REAL 3D mesh layers with REAL physics-based deformation,
 not 2D pixel manipulation. This is fundamentally how Damascus forging actually works.
 
+KEY INSIGHT FROM DEBUGGING SESSION:
+-----------------------------------
+The previous 2D approach failed because:
+  - Horizontal layers in a 2D pixel array have no physical "ends" to pull together
+  - You can't simulate 3D material flow by warping pixels
+  - The wedge split creates actual 3D geometry changes that pixels cannot represent
+
+NEW APPROACH:
+------------
+  - Each Damascus layer is a 3D triangular mesh (thin rectangular solid)
+  - Deformations modify actual 3D vertex positions
+  - Physics includes: wedge splitting, twisting, compression, drilling
+  - Can view from ANY angle in 3D space
+  - Extract 2D cross-sections to see traditional Damascus patterns
+
 ARCHITECTURE:
 -------------
   DamascusLayer: Single layer (3D mesh + metadata)          -> lib/damascus_layer.py

@@ -2,6 +2,13 @@
 GUI Reference Viewers for Damascus Pattern Simulator
 =====================================================
 
+!! ELECTRON MIGRATION REQUIRED !!
+This module uses Tkinter for reference viewer windows (heat treatment guide,
+steel properties, custom steel dialog, forging/plasticity data). To re-integrate
+with the Electron UI, replace Tkinter windows with FastAPI endpoints serving
+the steel database as JSON, and build React viewer components. The steel
+database logic (_ensure_database, data lookups) is fully reusable.
+
 Standalone functions that display reference material (heat treatment guides,
 steel properties, forging losses, plasticity data) in Tkinter windows.
 

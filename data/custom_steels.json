@@ -1,0 +1,51 @@
+{
+  "pops_procut": {
+    "name": "Pops ProCut",
+    "category": "High Carbon",
+    "is_custom": true,
+    "density": 0.284,
+    "thermal_expansion": 7.1,
+    "thermal_conductivity": 27.0,
+    "modulus_elasticity": 30.0,
+    "austenitizing_temp": [
+      1500.0,
+      1600.0
+    ],
+    "quench_method": "Oil",
+    "tempering_data": [
+      [
+        450.0,
+        62.0
+      ],
+      [
+        375.0,
+        63.0
+      ],
+      [
+        450.0,
+        61.2
+      ],
+      [
+        300.0,
+        64.0
+      ]
+    ],
+    "forging_range": [
+      1500.0,
+      2200.0
+    ],
+    "movement_level": 3,
+    "scale_loss": [
+      1.5,
+      3.0
+    ],
+    "decarb_depth": [
+      0.025,
+      0.04
+    ],
+    "etch_color": "light",
+    "notes": "Specific heat treatment examples:\n- 1550\u00b0F austenitize + 450\u00b0F temper = 62 HRC\n- 1500\u00b0F austenitize + 375\u00b0F temper = 63 HRC\n- 1650\u00b0F austenitize + 450\u00b0F temper = 61.2 HRC (high toughness)\n- 1500\u00b0F austenitize + 300\u00b0F temper = 64 HRC (high edge retention)\nRECOMMENDED HEAT TREATMENT (furnace):\nAustenitize: 2050\u00b0F (1120\u00b0C) - if using advanced equipment\nQuench to below 125\u00b0F (50\u00b0C)\nDouble temper at 350\u00b0F (175\u00b0C) for 2 hrs minimum each\nCool to hand warm between tempers\nAim hardness: 60-63 HRC\n\nCRYOGENIC TREATMENT (optional):\nDry ice or liquid nitrogen adds 0.5-2 HRC\nCan be done after quench before tempering\n\nNOTES:\n- Exceptionally forgiving to heat treat\n- Ultra fine grain structure\n- Alternative to 15N20 for high-performance Damascus (bright layer)\n- Higher edge retention than 15N20, L6, O1, 80CrV2, 1095\n- Toughness approaches 8670, 15N20, and 5160 (depending on heat treatment)",
+    "created_date": "2026-02-04T17:18:47.874449",
+    "created_by": "User"
+  }
+}
