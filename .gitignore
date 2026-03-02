@@ -1,49 +1,24 @@
-# Development notes for AI assistant
-.dev_notes.md
-DEVELOPMENT_NOTES*.md
-SESSION_NOTES*.md
+# Dependencies
+node_modules/
 
-# Python cache
+# Build outputs
+out/
+dist/
+
+# Python caches and bytecode
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
+
+# Logs
+*.log
+python/vendor/logs/
 
 # Virtual environments
+.venv/
 venv/
 env/
-ENV/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+# OS/editor
 .DS_Store
 Thumbs.db
-
-# User data and temporary files
-*.log
-damascus_3d_debug_*.log
-app_output.log
-custom_steels.json
-
-# Temporary screenshot/image files from testing
-canvas_background.png
-damascus-screenshot.png
-feather_pattern.png
-
-# Test output files
-feather_operations.json
-
-# Strange files that shouldn't be here
-np
-os
-sys
-
-AGENTS*.md
-
-Notes/
+.vscode/
