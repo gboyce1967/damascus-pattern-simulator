@@ -3,6 +3,9 @@ import Sidebar from './components/Sidebar'
 import Viewport3D from './components/Viewport3D'
 import CrossSection from './components/CrossSection'
 import Timeline from './components/Timeline'
+import PreferencesDialog from './components/PreferencesDialog'
+import { usePreferences } from './contexts/PreferencesContext'
+import { formatDims } from './lib/units'
 
 type MeshPayload = {
   session_id: string
@@ -16,8 +19,16 @@ export default function App() {
   const [ops, setOps] = useState<any[]>([])
   const [crossPng, setCrossPng] = useState<string | null>(null)
   const [logs, setLogs] = useState<string[]>([])
+  const [prefsOpen, setPrefsOpen] = useState(false)
 
+  const { unitSystem } = usePreferences()
   const ready = useMemo(() => !!sessionId, [sessionId])
+
+  // Listen for File → Preferences menu click
+  useEffect(() => {
+    const unsub = window.damascus.onMenuOpenPreferences(() => setPrefsOpen(true))
+    return unsub
+  }, [])
 
   async function refreshAll(id: string) {
     const m = await window.damascus.mesh(id)
@@ -81,7 +92,7 @@ export default function App() {
                 </div>
               </div>
               <div className="text-xs text-zinc-400">
-                {mesh ? `${mesh.dims.width_mm.toFixed(1)}×${mesh.dims.length_mm.toFixed(1)}×${mesh.dims.height_mm.toFixed(1)} mm` : '…'}
+                {mesh ? formatDims(mesh.dims.width_mm, mesh.dims.length_mm, mesh.dims.height_mm, unitSystem) : '…'}
               </div>
             </div>
             <Viewport3D mesh={mesh} />
@@ -109,6 +120,8 @@ export default function App() {
 
         <Timeline ops={ops} logs={logs} />
       </div>
+
+      {prefsOpen && <PreferencesDialog onClose={() => setPrefsOpen(false)} />}
     </div>
   )
 }

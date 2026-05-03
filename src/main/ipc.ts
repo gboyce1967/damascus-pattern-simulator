@@ -2,9 +2,10 @@ import { ipcMain, dialog, app } from 'electron'
 import { EngineClient } from '../services/engineClient'
 import { LogBuffer } from '../services/logBuffer'
 import { ProjectStore } from '../services/projectStore'
+import { PreferencesStore } from '../services/preferencesStore'
 
-export function setupIpc(opts: { engine: EngineClient; logs: LogBuffer }) {
-  const { engine, logs } = opts
+export function setupIpc(opts: { engine: EngineClient; logs: LogBuffer; prefs: PreferencesStore }) {
+  const { engine, logs, prefs } = opts
   const store = new ProjectStore(app.getPath('userData'))
 
   ipcMain.handle('app:getInfo', async () => {
@@ -51,4 +52,8 @@ export function setupIpc(opts: { engine: EngineClient; logs: LogBuffer }) {
   ipcMain.handle('projects:delete', async (_evt, id: string) => store.remove(id))
 
   ipcMain.handle('logs:tail', async (_evt, n: number) => logs.tail(n))
+
+  // ── Preferences ────────────────────────────────────────────────
+  ipcMain.handle('prefs:get', async () => prefs.get())
+  ipcMain.handle('prefs:set', async (_evt, partial: any) => prefs.set(partial))
 }

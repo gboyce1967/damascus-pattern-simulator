@@ -23,6 +23,13 @@ declare global {
       projectsDelete(id: string): Promise<any>
 
       logsTail(n: number): Promise<string[]>
+
+      // Preferences
+      prefsGet(): Promise<{ unitSystem: 'metric' | 'imperial' }>
+      prefsSet(partial: Partial<{ unitSystem: 'metric' | 'imperial' }>): Promise<any>
+
+      // Menu events
+      onMenuOpenPreferences(cb: () => void): () => void
     }
   }
 }

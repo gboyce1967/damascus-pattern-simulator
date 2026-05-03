@@ -24,5 +24,16 @@ contextBridge.exposeInMainWorld('damascus', {
   projectsSave: (p: any) => ipcRenderer.invoke('projects:save', p),
   projectsDelete: (id: string) => ipcRenderer.invoke('projects:delete', id),
 
-  logsTail: (n: number) => ipcRenderer.invoke('logs:tail', n)
+  logsTail: (n: number) => ipcRenderer.invoke('logs:tail', n),
+
+  // Preferences
+  prefsGet: () => ipcRenderer.invoke('prefs:get'),
+  prefsSet: (partial: any) => ipcRenderer.invoke('prefs:set', partial),
+
+  // Menu events (main → renderer)
+  onMenuOpenPreferences: (cb: () => void) => {
+    const handler = () => cb()
+    ipcRenderer.on('menu:open-preferences', handler)
+    return () => { ipcRenderer.removeListener('menu:open-preferences', handler) }
+  }
 })

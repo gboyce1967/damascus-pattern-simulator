@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { usePreferences } from '../contexts/PreferencesContext'
+import { formatLength } from '../lib/units'
 
 export default function CrossSection(props: {
   pngBase64: string | null
   onChange: (ySlice: number, resolution: number) => Promise<void>
 }) {
+  const { unitSystem } = usePreferences()
   const [y, setY] = useState(0)
   const [res, setRes] = useState(700)
 
@@ -32,7 +35,7 @@ export default function CrossSection(props: {
             value={y}
             onChange={(e) => setY(Number(e.target.value))}
           />
-          <div className="text-xs text-zinc-400">{y.toFixed(0)} mm</div>
+          <div className="text-xs text-zinc-400">{formatLength(y, unitSystem, 0)}</div>
         </div>
 
         <div className="p-3 rounded-xl bg-white/5 border border-white/10">

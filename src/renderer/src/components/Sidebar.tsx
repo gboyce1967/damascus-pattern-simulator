@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { usePreferences } from '../contexts/PreferencesContext'
+import { mmToDisplay, displayToMm, unitLabel, formatLength } from '../lib/units'
 
 function Section({ title, defaultOpen = true, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -22,6 +24,10 @@ export default function Sidebar(props: {
   onOp: (op: string, payload?: any) => Promise<void>
   onExport: () => Promise<void>
 }) {
+  const { unitSystem } = usePreferences()
+  const u = unitLabel(unitSystem)
+
+  // All slider/input state is stored in mm internally
   const [wedgeDepth, setWedgeDepth] = useState(18)
   const [wedgeAngle, setWedgeAngle] = useState(35)
   const [splitGap, setSplitGap] = useState(6)
@@ -46,20 +52,20 @@ export default function Sidebar(props: {
 
       <div className="space-y-4">
         <Section title="Feather (Wedge Split)" defaultOpen={false}>
-          <label className="text-xs text-zinc-400">Depth (mm)</label>
+          <label className="text-xs text-zinc-400">Depth ({u})</label>
           <input className="w-full" type="range" min={5} max={30} value={wedgeDepth}
             onChange={e => setWedgeDepth(Number(e.target.value))} />
-          <div className="text-xs text-zinc-300 mb-2">{wedgeDepth} mm</div>
+          <div className="text-xs text-zinc-300 mb-2">{formatLength(wedgeDepth, unitSystem)}</div>
 
           <label className="text-xs text-zinc-400">Angle (°)</label>
           <input className="w-full" type="range" min={10} max={60} value={wedgeAngle}
             onChange={e => setWedgeAngle(Number(e.target.value))} />
           <div className="text-xs text-zinc-300 mb-2">{wedgeAngle}°</div>
 
-          <label className="text-xs text-zinc-400">Split gap (mm)</label>
+          <label className="text-xs text-zinc-400">Split gap ({u})</label>
           <input className="w-full" type="range" min={0} max={12} value={splitGap}
             onChange={e => setSplitGap(Number(e.target.value))} />
-          <div className="text-xs text-zinc-300">{splitGap} mm</div>
+          <div className="text-xs text-zinc-300">{formatLength(splitGap, unitSystem)}</div>
 
           <button
             disabled={!props.ready}
@@ -73,8 +79,10 @@ export default function Sidebar(props: {
         <Section title="Forge to Square Bar">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-zinc-400">Bar size (mm)</label>
-              <input className="w-full" type="number" value={sqBarSize} onChange={e => setSqBarSize(Number(e.target.value))} />
+              <label className="text-xs text-zinc-400">Bar size ({u})</label>
+              <input className="w-full" type="number"
+                value={parseFloat(mmToDisplay(sqBarSize, unitSystem).toFixed(2))}
+                onChange={e => setSqBarSize(displayToMm(Number(e.target.value), unitSystem))} />
             </div>
             <div>
               <label className="text-xs text-zinc-400">Heats</label>
@@ -94,8 +102,10 @@ export default function Sidebar(props: {
         <Section title="Forge to Octagonal Bar">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-zinc-400">Bar size (mm)</label>
-              <input className="w-full" type="number" value={octBarSize} onChange={e => setOctBarSize(Number(e.target.value))} />
+              <label className="text-xs text-zinc-400">Bar size ({u})</label>
+              <input className="w-full" type="number"
+                value={parseFloat(mmToDisplay(octBarSize, unitSystem).toFixed(2))}
+                onChange={e => setOctBarSize(displayToMm(Number(e.target.value), unitSystem))} />
             </div>
             <div>
               <label className="text-xs text-zinc-400">Heats</label>
