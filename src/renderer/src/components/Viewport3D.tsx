@@ -12,15 +12,17 @@ export default function Viewport3D({ mesh }: { mesh: MeshPayload }) {
   const sceneRef = useRef<THREE.Scene | null>(null)
   const groupRef = useRef<THREE.Group | null>(null)
   const gridRef = useRef<THREE.GridHelper | null>(null)
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
 
   useEffect(() => {
     if (!hostRef.current) return
 
     const host = hostRef.current
     const scene = new THREE.Scene()
-    scene.fog = new THREE.Fog(0x05050a, 120, 420)
+    scene.fog = new THREE.Fog(0x05050a, 200, 2000)
 
-    const camera = new THREE.PerspectiveCamera(45, host.clientWidth / host.clientHeight, 0.1, 2000)
+    const camera = new THREE.PerspectiveCamera(45, host.clientWidth / host.clientHeight, 0.1, 8000)
     camera.position.set(140, 110, 180)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -30,6 +32,9 @@ export default function Viewport3D({ mesh }: { mesh: MeshPayload }) {
 
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
+
+    cameraRef.current = camera
+    controlsRef.current = controls
 
     // Lights
     scene.add(new THREE.AmbientLight(0xffffff, 0.55))
@@ -132,6 +137,34 @@ export default function Viewport3D({ mesh }: { mesh: MeshPayload }) {
     const grid = new THREE.GridHelper(gridSize, Math.round(gridSize / 10), 0x222233, 0x11111a)
     scene.add(grid)
     gridRef.current = grid
+
+    // Auto-frame: centre orbit target on the billet and pull camera back
+    // so the whole bar is visible, no matter how long it got.
+    const camera = cameraRef.current
+    const controls = controlsRef.current
+    if (camera && controls) {
+      const { width_mm: w, length_mm: l, height_mm: h } = mesh.dims
+      // Scene coords: X=width, Y(up)=height, Z=length
+      const cx = w / 2
+      const cy = h / 2
+      const cz = l / 2
+      controls.target.set(cx, cy, cz)
+
+      // Pull back far enough to fit the longest dimension
+      const maxDim = Math.max(w, l, h)
+      const dist = maxDim * 1.4
+      camera.position.set(cx + dist * 0.55, cy + dist * 0.45, cz + dist * 0.7)
+      camera.far = Math.max(8000, maxDim * 6)
+      camera.updateProjectionMatrix()
+
+      // Update fog to match
+      if (scene.fog instanceof THREE.Fog) {
+        scene.fog.near = dist * 0.3
+        scene.fog.far = dist * 5
+      }
+
+      controls.update()
+    }
   }, [mesh])
 
   return <div ref={hostRef} className="w-full flex-1 min-h-[200px] rounded-xl overflow-hidden bg-gradient-to-b from-black/40 to-black/10" />

@@ -71,6 +71,7 @@ export default function App() {
         <Sidebar
           ready={ready}
           sessionId={sessionId}
+          billetLengthMm={mesh?.dims.length_mm ?? null}
           onOp={async (op, payload) => {
             if (!sessionId) return
             await window.damascus.op(sessionId, op, payload)

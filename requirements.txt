@@ -1,0 +1,18 @@
+# Damascus Pattern Simulator - Python Engine Dependencies
+# Install: pip install -r requirements.txt
+#
+# NOTE: open3d 0.19.0 for Python 3.13 requires the development wheel:
+#   pip install -U -f https://www.open3d.org/docs/latest/getting_started.html --only-binary open3d open3d
+# Once open3d publishes a stable 3.13 wheel to PyPI, a plain `pip install open3d` will work.
+
+# 3D engine core
+open3d>=0.19.0
+numpy>=2.0.0
+matplotlib>=3.10.0
+Pillow>=12.0.0
+scipy>=1.17.0
+
+# FastAPI backend (Electron ↔ Python bridge)
+fastapi>=0.136.0
+uvicorn>=0.46.0
+pydantic>=2.13.0

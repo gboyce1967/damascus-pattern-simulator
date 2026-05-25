@@ -4,15 +4,18 @@ Forging Operation: Drilling (Raindrop Damascus)
 
 Drills holes through a Damascus billet to create raindrop patterns.
 
+The drill goes along the Y axis (length), so the hole cross-section lives
+in the X-Z plane. Vertices inside the hole radius are pushed radially
+outward in X-Z; vertices in the influence zone receive a Gaussian falloff.
+
 Usage:
     from lib.forging_drill import drill_hole
     drill_hole(billet, x_pos=0.0, z_pos=0.0, radius=10.0)
 """
 
 import numpy as np
-import open3d as o3d
-from datetime import datetime
 
+from lib.forging_displacement import apply_displacement_to_billet
 from lib.logging_config import logger
 
 
@@ -20,6 +23,9 @@ def drill_hole(billet, x_pos: float = 0.0, z_pos: float = 0.0,
                radius: float = 10.0, debug: bool = True):
     """
     Drill a hole through the billet.
+
+    The hole axis is the Y (length) direction. Displacement is applied
+    radially in the X-Z cross-section plane.
 
     Args:
         billet: Damascus3DBillet instance to deform
@@ -33,68 +39,50 @@ def drill_hole(billet, x_pos: float = 0.0, z_pos: float = 0.0,
     logger.info(f"Parameters: position=({x_pos:.1f}, {z_pos:.1f}), radius={radius}mm")
     logger.info("=" * 70)
 
-    start_time = datetime.now()
-
     print(f"\nDrilling hole at ({x_pos:.1f}, {z_pos:.1f}) with radius {radius:.1f}mm")
 
-    total_vertices_affected = 0
+    def drill_field(vertices, layer, layer_idx, frame):
+        dx = vertices[:, 0] - x_pos
+        dz = vertices[:, 2] - z_pos
+        dist = np.sqrt(dx ** 2 + dz ** 2)
 
-    for layer_idx, layer in enumerate(billet.layers):
-        logger.debug(f"Drilling through layer #{layer_idx}")
+        mask = dist < radius * 2.0
+        displaced = vertices.copy()
 
-        vertices = np.asarray(layer.mesh.vertices).copy()
-        vertices_affected_in_layer = 0
+        if mask.any():
+            d = dist[mask]
+            vx = dx[mask]
+            vz = dz[mask]
 
-        for i, vertex in enumerate(vertices):
-            x, y, z = vertex
+            push = np.where(
+                d < radius,
+                1.5,
+                np.exp(-((d - radius) ** 2) / (2 * radius ** 2)) * 0.3
+            )
 
-            dx = x - x_pos
-            dy = y - z_pos
-            dist = np.sqrt(dx ** 2 + dy ** 2)
+            safe_dist = np.where(d > 0.001, d, 1.0)
+            dir_x = np.where(d > 0.001, vx / safe_dist, 0.0)
+            dir_z = np.where(d > 0.001, vz / safe_dist, 0.0)
 
-            if dist < radius * 2.0:
-                vertices_affected_in_layer += 1
+            displaced[mask, 0] += dir_x * radius * push
+            displaced[mask, 2] += dir_z * radius * push
 
-                if dist < radius:
-                    push_factor = 1.5
-                    logger.debug(f"  Vertex {i} INSIDE hole: dist={dist:.2f}mm, push={push_factor}")
-                else:
-                    influence = np.exp(-((dist - radius) ** 2) / (2 * radius ** 2))
-                    push_factor = influence * 0.3
+        if debug:
+            logger.debug(f"  Layer #{layer_idx}: {int(mask.sum())} vertices affected")
 
-                if dist > 0.001:
-                    direction_x = dx / dist
-                    direction_y = dy / dist
+        return displaced
 
-                    displacement_x = direction_x * radius * push_factor
-                    displacement_y = direction_y * radius * push_factor
+    stats = apply_displacement_to_billet(
+        billet,
+        'drill_hole',
+        drill_field,
+        {
+            'x_pos': x_pos,
+            'z_pos': z_pos,
+            'radius': radius,
+        },
+        extra_param=radius * 30,
+        debug=debug,
+    )
 
-                    vertices[i, 0] += displacement_x
-                    vertices[i, 1] += displacement_y
-
-        logger.debug(f"  Layer #{layer_idx}: {vertices_affected_in_layer} vertices affected")
-        total_vertices_affected += vertices_affected_in_layer
-
-        layer.mesh.vertices = o3d.utility.Vector3dVector(vertices)
-        layer.mesh.compute_vertex_normals()
-
-        layer.deformation_history.append({
-            'operation': 'drill',
-            'timestamp': datetime.now().isoformat(),
-            'parameters': {'x_pos': x_pos, 'z_pos': z_pos, 'radius': radius},
-            'vertices_affected': vertices_affected_in_layer
-        })
-
-    elapsed = (datetime.now() - start_time).total_seconds()
-    logger.info(f"Drilling complete in {elapsed:.2f}s")
-    logger.info(f"  Total vertices affected: {total_vertices_affected}")
-
-    billet.operation_history.append({
-        'operation': 'drill_hole',
-        'timestamp': datetime.now().isoformat(),
-        'duration_seconds': elapsed,
-        'parameters': {'x_pos': x_pos, 'z_pos': z_pos, 'radius': radius},
-        'vertices_affected': total_vertices_affected
-    })
-
-    print("Drilling complete!")
+    print(f"Drilling complete! {stats.affected_vertices} vertices affected.")

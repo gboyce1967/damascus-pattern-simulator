@@ -10,6 +10,20 @@ Refactored the Damascus Pattern Simulator from monolithic scripts into a modular
 `lib/` package. Each function/class now lives in its own module, making the code
 reusable for future scripts and easier to maintain.
 
+## Current Status Update — 2026-05-25
+
+The original Tkinter GUI path has been superseded by the Electron + FastAPI app.
+The old GUI-only square/octagon dialog files were removed:
+
+- `lib/gui_forging.py`
+- `lib/forging_square.py`
+- `lib/forging_octagon.py`
+
+Square and octagon forging now run through `python/engine/forge_ops.py` using
+headless operation functions and the shared displacement-field architecture.
+The active octagon support modules are `lib/forging_displacement.py`,
+`lib/forging_octagon_mesh.py`, and `lib/forging_utils.py`.
+
 ## Before (monolithic)
 
 | File | Lines | Description |
@@ -34,7 +48,9 @@ reusable for future scripts and easier to maintain.
 | `gui_dialogs.py` | Debug console, billet stats, about, quick start, build plate warning |
 | `gui_references.py` | Heat treatment guide, steel properties, custom steel dialog, forging/plasticity refs |
 | `gui_export.py` | `export_3d_model()`, `export_cross_section()`, `export_operation_log()` |
-| `gui_forging.py` | `forge_to_square()`, `forge_to_octagon()` with physics and dialogs |
+| `forging_utils.py` | Billet frame detection and mesh subdivision helpers |
+| `forging_displacement.py` | Shared displacement-field engine for forging operations |
+| `forging_octagon_mesh.py` | Structured octagonal layer mesh builder |
 | `demo_functions.py` | `demo_feather_pattern()`, `demo_twist_pattern()`, `demo_raindrop_pattern()` |
 
 ### Root-level scripts (slimmed down)
@@ -42,14 +58,15 @@ reusable for future scripts and easier to maintain.
 | File | Role |
 |------|------|
 | `damascus_3d_simulator.py` | Thin entry point + backward-compatible re-exports from lib |
-| `damascus_3d_gui.py` | GUI layout + thin method wrappers delegating to lib |
+| `damascus_3d_gui.py` | Historical Tkinter GUI entry point; removed after Electron migration |
 | `vispy_3d_viewer.py` | Re-export wrapper for `lib.vispy_viewer.DamascusVispyViewer` |
 
 ## Design Decisions
 
-1. **Standalone functions (not mixins):** GUI helpers accept required state as
-   parameters rather than being mixed into the GUI class. This maximizes
-   reusability — any future script can call `forge_to_square(root, billet, ...)`.
+1. **Standalone functions (not mixins):** The original Tkinter GUI helpers accepted
+   required state as parameters rather than being mixed into the GUI class. That
+   approach has been superseded for square/octagon forging by headless FastAPI
+   operations that accept payload values from the Electron UI.
 
 2. **Backward-compatible imports:** Existing code like
    `from damascus_3d_simulator import Damascus3DBillet` still works unchanged.

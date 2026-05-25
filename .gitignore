@@ -21,6 +21,9 @@ env/
 # Session summaries (local dev notes)
 SESSION_SUMMARY_*.md
 
+# RAG index (local vector database)
+.rag_index/
+
 # OS/editor
 .DS_Store
 Thumbs.db

@@ -2,6 +2,32 @@ import { useState } from 'react'
 import { usePreferences } from '../contexts/PreferencesContext'
 import { mmToDisplay, displayToMm, unitLabel, formatLength } from '../lib/units'
 
+const DEFAULT_OCTAGON_CHAMFER_PERCENT = 45
+const REGULAR_OCTAGON_CHAMFER_PERCENT = 58.6
+const MIN_OCTAGON_CHAMFER_PERCENT = 5
+const MAX_OCTAGON_CHAMFER_PERCENT = 75
+const MM_PER_INCH = 25.4
+const DEFAULT_TWIST_COUNT = 1
+const DEFAULT_TWIST_SLIDER_MAX = 30
+const MAX_TWIST_COUNT = 1000
+const STANDARD_TWISTS_PER_INCH_MIN = 3
+const STANDARD_TWISTS_PER_INCH_MAX = 4
+const TURKISH_TWISTS_PER_INCH_MIN = 5
+const TURKISH_TWISTS_PER_INCH_MAX = 10
+
+function clampOctChamfer(value: number) {
+  if (!Number.isFinite(value)) return DEFAULT_OCTAGON_CHAMFER_PERCENT
+  return Math.min(MAX_OCTAGON_CHAMFER_PERCENT, Math.max(MIN_OCTAGON_CHAMFER_PERCENT, value))
+}
+function clampTwistCount(value: number) {
+  if (!Number.isFinite(value)) return DEFAULT_TWIST_COUNT
+  return Math.min(MAX_TWIST_COUNT, Math.max(0, value))
+}
+
+function formatTwistValue(value: number, decimals = 2) {
+  return value.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1')
+}
+
 function Section({ title, defaultOpen = true, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
@@ -21,6 +47,7 @@ function Section({ title, defaultOpen = true, children }: { title: string; defau
 export default function Sidebar(props: {
   ready: boolean
   sessionId: string | null
+  billetLengthMm: number | null
   onOp: (op: string, payload?: any) => Promise<void>
   onExport: () => Promise<void>
 }) {
@@ -32,14 +59,38 @@ export default function Sidebar(props: {
   const [wedgeAngle, setWedgeAngle] = useState(35)
   const [splitGap, setSplitGap] = useState(6)
 
-  const [twistCount, setTwistCount] = useState(1)
+  const [twistCount, setTwistCount] = useState(DEFAULT_TWIST_COUNT)
 
   const [sqBarSize, setSqBarSize] = useState(15)
   const [sqHeats, setSqHeats] = useState(5)
 
   const [octBarSize, setOctBarSize] = useState(15)
   const [octHeats, setOctHeats] = useState(5)
-  const [octChamfer, setOctChamfer] = useState(15)
+  const [octChamfer, setOctChamfer] = useState(DEFAULT_OCTAGON_CHAMFER_PERCENT)
+
+  const updateOctChamfer = (value: number) => setOctChamfer(clampOctChamfer(value))
+  const updateTwistCount = (value: number) => setTwistCount(clampTwistCount(value))
+  const billetLengthInches = props.billetLengthMm && props.billetLengthMm > 0
+    ? props.billetLengthMm / MM_PER_INCH
+    : null
+  const standardTwistRange = billetLengthInches
+    ? {
+        min: billetLengthInches * STANDARD_TWISTS_PER_INCH_MIN,
+        max: billetLengthInches * STANDARD_TWISTS_PER_INCH_MAX,
+      }
+    : null
+  const turkishTwistRange = billetLengthInches
+    ? {
+        min: billetLengthInches * TURKISH_TWISTS_PER_INCH_MIN,
+        max: billetLengthInches * TURKISH_TWISTS_PER_INCH_MAX,
+      }
+    : null
+  const twistDensity = billetLengthInches ? twistCount / billetLengthInches : null
+  const twistSliderMax = Math.max(
+    DEFAULT_TWIST_SLIDER_MAX,
+    Math.ceil(turkishTwistRange?.max ?? 0),
+    Math.ceil(twistCount),
+  )
 
   return (
     <div className="glass p-4 overflow-y-auto">
@@ -113,10 +164,27 @@ export default function Sidebar(props: {
             </div>
           </div>
 
-          <label className="text-xs text-zinc-400 mt-2 block">Chamfer %</label>
-          <input className="w-full" type="range" min={5} max={30} value={octChamfer}
-            onChange={e => setOctChamfer(Number(e.target.value))} />
-          <div className="text-xs text-zinc-300">{octChamfer}%</div>
+          <label className="text-xs text-zinc-400 mt-2 block">Die angle (Chamfor)</label>
+          <input className="w-full" type="range"
+            min={MIN_OCTAGON_CHAMFER_PERCENT}
+            max={MAX_OCTAGON_CHAMFER_PERCENT}
+            step={0.1}
+            value={octChamfer}
+            onChange={e => updateOctChamfer(Number(e.target.value))} />
+          <div className="mt-2 grid grid-cols-2 gap-2 items-end">
+            <div>
+              <label className="text-xs text-zinc-400">Chamfor %</label>
+              <input className="w-full" type="number"
+                min={MIN_OCTAGON_CHAMFER_PERCENT}
+                max={MAX_OCTAGON_CHAMFER_PERCENT}
+                step={0.1}
+                value={Number(octChamfer.toFixed(1))}
+                onChange={e => updateOctChamfer(Number(e.target.value))} />
+            </div>
+            <div className="text-xs text-zinc-300 pb-2">
+              {REGULAR_OCTAGON_CHAMFER_PERCENT.toFixed(1)}% = regular octagon
+            </div>
+          </div>
 
           <button
             disabled={!props.ready}
@@ -129,9 +197,37 @@ export default function Sidebar(props: {
 
         <Section title="Twist">
           <label className="text-xs text-zinc-400">Full twists</label>
-          <input className="w-full" type="range" min={0} max={30} step={1} value={twistCount}
-            onChange={e => setTwistCount(Number(e.target.value))} />
-          <div className="text-xs text-zinc-300">{twistCount} {twistCount === 1 ? 'twist' : 'twists'} ({twistCount * 360}°)</div>
+          <input className="w-full" type="range" min={0} max={twistSliderMax} step={0.25} value={twistCount}
+            onChange={e => updateTwistCount(Number(e.target.value))} />
+          <div className="mt-2 grid grid-cols-2 gap-2 items-end">
+            <div>
+              <label className="text-xs text-zinc-400">Twists</label>
+              <input className="w-full" type="number"
+                min={0}
+                max={MAX_TWIST_COUNT}
+                step={0.25}
+                value={Number(twistCount.toFixed(2))}
+                onChange={e => updateTwistCount(Number(e.target.value))} />
+            </div>
+            <div className="text-xs text-zinc-300 pb-2">
+              {formatTwistValue(twistCount)} {twistCount === 1 ? 'twist' : 'twists'} ({formatTwistValue(twistCount * 360, 1)}°)
+            </div>
+          </div>
+
+          <div className="mt-2 rounded-lg bg-black/20 border border-white/10 p-2 text-xs text-zinc-300 space-y-1">
+            <div className="font-medium text-zinc-200">Twist guidelines</div>
+            <div>Standard: 3–4 twists/in • Turkish: 5–10 twists/in</div>
+            {billetLengthInches && standardTwistRange && turkishTwistRange ? (
+              <div>
+                Current length {formatLength(props.billetLengthMm, unitSystem)} ({billetLengthInches.toFixed(2)} in):
+                standard {formatTwistValue(standardTwistRange.min, 1)}–{formatTwistValue(standardTwistRange.max, 1)} twists,
+                Turkish {formatTwistValue(turkishTwistRange.min, 1)}–{formatTwistValue(turkishTwistRange.max, 1)} twists.
+                Selected: {formatTwistValue(twistDensity ?? 0, 2)} twists/in.
+              </div>
+            ) : (
+              <div>Create or load a billet to calculate total twist ranges.</div>
+            )}
+          </div>
 
           <button
             disabled={!props.ready}

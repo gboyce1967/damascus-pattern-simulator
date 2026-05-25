@@ -5,10 +5,15 @@ from dataclasses import dataclass
 from PIL import Image
 
 from python.engine.serialize import serialize_layers_mesh
+from lib.forging_visible_surface import (
+    build_visible_surface_layers,
+    current_frame_dimensions,
+)
 from python.engine.forge_ops import (
     forge_to_square_safe, forge_to_octagon_safe, apply_twist_safe,
     apply_wedge_safe, apply_compression_safe, drill_hole_safe,
-    cross_section_png_safe,
+    cross_section_png_safe, DEFAULT_OCTAGON_CHAMFER_PERCENT,
+    DEFAULT_OCTAGON_FLOW_STRENGTH, DEFAULT_OCTAGON_CENTER_BULGE,
 )
 
 # Import your existing simulator (copied into python/vendor/)
@@ -24,15 +29,13 @@ class EngineSession:
         return self.billet.get_billet_stats() | {"operation_history": self.billet.operation_history}
 
     def mesh_payload(self):
-        height = sum(l.thickness for l in self.billet.layers)
+        render_layers = build_visible_surface_layers(self.billet)
+        render_mode = "fused_material_surface" if render_layers is not None else "layer_meshes"
         return {
             "session_id": "n/a",
-            "dims": {
-                "width_mm": float(self.billet.width),
-                "length_mm": float(self.billet.length),
-                "height_mm": float(height)
-            },
-            "layers": serialize_layers_mesh(self.billet.layers)
+            "dims": current_frame_dimensions(self.billet),
+            "render_mode": render_mode,
+            "layers": render_layers if render_layers is not None else serialize_layers_mesh(self.billet.layers)
         }
 
     def apply_operation(self, op: str, payload: dict):
@@ -54,7 +57,9 @@ class EngineSession:
                 self.billet,
                 target_bar_size=float(payload.get("target_bar_size", 15.0)),
                 num_heats=int(payload.get("num_heats", 5)),
-                chamfer_percent=float(payload.get("chamfer_percent", 15.0))
+                chamfer_percent=float(payload.get("chamfer_percent", DEFAULT_OCTAGON_CHAMFER_PERCENT)),
+                flow_strength=float(payload.get("flow_strength", DEFAULT_OCTAGON_FLOW_STRENGTH)),
+                center_bulge=float(payload.get("center_bulge", DEFAULT_OCTAGON_CENTER_BULGE))
             )
         elif op == "twist":
             apply_twist_safe(
